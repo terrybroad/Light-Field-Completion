@@ -5,6 +5,7 @@
 #include <array>        // std::array
 #include <random>       // std::default_random_engine
 #include <chrono>       // std::chrono::system_clock
+#include <string.h>
 
 using namespace std;
 using namespace cv;
@@ -14,9 +15,9 @@ char window_name1[] = "Unprocessed Image";
 char window_name2[] = "Processed Image";
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-bool inImage(int x, int y, const Mat &img)
+bool inImage(int x, int y, const Mat &img, int windowSize)
 {
-  return (x >= 0 && x < img.rows && y >= 0 && y < img.cols);
+  return (x - windowSize >= 0 && x + windowSize < img.cols && y - windowSize >= 0 && y + windowSize < img.rows);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -28,7 +29,7 @@ Mat getNeighbourhoodWindow(const Mat &img, Point2i pt, int windowSize)
   {
     for(int j = 0; j < output.cols; j++)
     {
-      if(inImage( pt.x - windowSize + i, pt.y - windowSize + j, img))
+      if(inImage( pt.x + i, pt.y + j, img, windowSize))
       {
         output.at<int>(i, j) = img.at<int>(pt.y - windowSize + i, pt.x - windowSize + j);
       }
@@ -85,7 +86,7 @@ int main( int argc, char** argv )
     int rows = src.rows;
     int cols = src.cols;
 
-    int windowSize = 3;
+    int windowSize = 5;
     int winLength = (windowSize*2) + 1;
 
     cout << rows << endl;
@@ -121,14 +122,14 @@ int main( int argc, char** argv )
         output.at<int>(i,j,0) = src.at<int>(indexX, indexY,0);
       }
     }
-/*
+
 
     // -------------------------------------------------------
     //                Check Pixels
     // -------------------------------------------------------
-    for(int i = 0; i < output.rows/4; i++)
+    for(int i = 0; i < output.rows/2 ; i++)
     {
-      for(int j = 0; j < output.cols; j++)
+      for(int j = 0; j < output.cols/2 ; j++)
       {
           Mat templ8 = getNeighbourhoodWindow(output,Point2i(i,j),windowSize);
 
@@ -141,6 +142,10 @@ int main( int argc, char** argv )
           candidates.resize(winLength*winLength);
           dist.resize(winLength*winLength);
 
+          cout << i  <<  endl;
+          cout << j << endl;
+
+
           for(int k = 0; k < winLength; k++)
           {
             for(int l = 0; l < winLength; l++)
@@ -152,15 +157,16 @@ int main( int argc, char** argv )
 
               if( relPos.x > windowSize && relPos.y > windowSize && relPos.x < rows - windowSize && relPos.y < cols - windowSize)
               {
-                  refPos = linearArray.at(relPos.x*rows + relPos.y);
+                  refPos = linearArray.at(relPos.y*rows + relPos.x);
 
-                  if(inImage(refPos.x-windowSize,refPos.y-windowSize,output) && inImage(refPos.x+windowSize,refPos.y+windowSize,output) && inImage(refPos.x-windowSize,refPos.y+windowSize,output) && inImage(refPos.x+windowSize,refPos.y-windowSize,output))
+                  if(inImage(refPos.x,refPos.y,output,windowSize) )
                   {
 
                     rrPos = Point2i(refPos.x + (k-windowSize),refPos.y+(l-windowSize));
+                    //rrPos = Point2i(refPos.x ,refPos.y);
                     //cout << "thrills" << endl;
 
-                    if(inImage(rrPos.x-windowSize,rrPos.y-windowSize,output) && inImage(rrPos.x+windowSize,rrPos.y+windowSize,output) && inImage(rrPos.x-windowSize,rrPos.y+windowSize,output) && inImage(rrPos.x+windowSize,rrPos.y-windowSize,output))
+                    if(inImage(rrPos.x,rrPos.y,output,windowSize))
                     {
                       candidates.at(count) = Point2i(rrPos.x,rrPos.y);
 
@@ -177,7 +183,7 @@ int main( int argc, char** argv )
                         }
 
                       count++;
-                     }
+                    }
                    }
                 }
 
@@ -195,7 +201,8 @@ int main( int argc, char** argv )
       }
     }
 
-*/
+
+
     //Mat templ8 = getNeighbourhoodWindow(output,Point2i(40,30),2);
 
     namedWindow( window_name2, WINDOW_AUTOSIZE );

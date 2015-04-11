@@ -21,6 +21,8 @@ random
 -
 chrono
 -
+string.h
+-
 
 /usr/local/include/opencv2/core.hpp
 opencv2/core/cvdef.h

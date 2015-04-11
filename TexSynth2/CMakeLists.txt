@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( TexSynth2 )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( TexSynth2 TexSynth2.cpp )
+target_link_libraries( TexSynth2 ${OpenCV_LIBS} )
