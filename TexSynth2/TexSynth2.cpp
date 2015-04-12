@@ -16,13 +16,13 @@ char window_name2[] = "Processed Image";
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool inImage(int x, int y, const Mat &img)
 {
-  return (x >= 0 && x < img.rows && y >= 0 && y < img.cols);
+  return (x >= 0 && x < img.cols && y >= 0 && y < img.rows);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 bool windowInImage(int x, int y, const Mat &img, int windowSize)
 {
-  return (x - windowSize >= 0 && x + windowSize < img.rows && y - windowSize >= 0 && y + windowSize < img.cols);
+  return (x - windowSize >= 0 && x + windowSize < img.cols && y - windowSize >= 0 && y + windowSize < img.rows);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -30,13 +30,13 @@ Mat getNeighbourhoodWindow(const Mat &img, Point2i pt, int windowSize)
 {
   Mat output = Mat(windowSize * 2 + 1, windowSize * 2 + 1, 16);
 
-  for(int i = 0; i < output.rows; i++)
+  for(int y = 0; y < output.rows; y++)
   {
-    for(int j = 0; j < output.cols; j++)
+    for(int x = 0; x < output.cols; x++)
     {
-      if(inImage( pt.x - windowSize + i, pt.y - windowSize + j, img))
+      if(inImage( pt.y - windowSize + y, pt.x - windowSize + x, img))
       {
-        output.at<int>(i, j) = img.at<int>(pt.y - windowSize + i, pt.x - windowSize + j);
+        output.at<int>(y, x) = img.at<int>(pt.y - windowSize + y, pt.x - windowSize + x);
       }
     }
   }
@@ -91,7 +91,7 @@ int main( int argc, char** argv )
     int rows = src.rows;
     int cols = src.cols;
 
-    int windowSize = 3;
+    int windowSize = 11;
     int winLength = (windowSize*2) + 1;
 
     cout << rows << endl;
@@ -103,9 +103,10 @@ int main( int argc, char** argv )
     //            RANDOMIZE IMAGE
     // -------------------------------------------------------
 
-    vector<Point2i> linearArray;
+    vector<Point2i> linearArray, newLinearArray;
 
     linearArray.resize(rows*cols);
+    newLinearArray.resize(rows*cols);
 
     for(int y = 0; y < rows; y++)
     {
@@ -122,13 +123,12 @@ int main( int argc, char** argv )
     {
       for(int x = 0; x < cols; x++)
       {
-            Point2i p = linearArray.at(y*cols + x);
-
+        Point2i p = linearArray.at(y*cols + x);
         output.at<int>(y,x,0) = src.at<int>(p.y, p.x,0);
       }
     }
-/*
 
+/*
     // -------------------------------------------------------
     //                Check Pixels
     // -------------------------------------------------------
@@ -160,13 +160,13 @@ int main( int argc, char** argv )
               {
                   refPos = linearArray.at(relPos.x*rows + relPos.y);
 
-                  if(inImage(refPos.x-windowSize,refPos.y-windowSize,output) && inImage(refPos.x+windowSize,refPos.y+windowSize,output) && inImage(refPos.x-windowSize,refPos.y+windowSize,output) && inImage(refPos.x+windowSize,refPos.y-windowSize,output))
+                  if(windowInImage(relPos.x,relPos.y,output,windowSize))
                   {
 
                     rrPos = Point2i(refPos.x + (k-windowSize),refPos.y+(l-windowSize));
                     //cout << "thrills" << endl;
 
-                    if(inImage(rrPos.x-windowSize,rrPos.y-windowSize,output) && inImage(rrPos.x+windowSize,rrPos.y+windowSize,output) && inImage(rrPos.x-windowSize,rrPos.y+windowSize,output) && inImage(rrPos.x+windowSize,rrPos.y-windowSize,output))
+                    if(windowInImage(rrPos.x,rrPos.y,output,windowSize))
                     {
                       candidates.at(count) = Point2i(rrPos.x,rrPos.y);
 
@@ -195,20 +195,83 @@ int main( int argc, char** argv )
             cout << bestValue << endl;
             cout << dist.at(bestValue) << endl;
 
-        output.at<int>(i,j,0) = src.at<int>(candidates.at(bestValue).x,candidates.at(bestValue).y,0);
+        output.at<int>(i,j,0) = src.at<int>(candidates.at(bestValue).y,candidates.at(bestValue).x,0);
 
 
       }
     }
 
 */
+    for(int i = 0; i < 5; i++)
+    {
+      for(int y = 0; y < rows; y++)
+      {
+        for(int x = 0; x < cols; x++)
+        {
+          Mat templ8 = getNeighbourhoodWindow(output,Point2i(x,y),windowSize);
+          vector<Point2i> candidates;
+          vector<double> dist;
+          candidates.resize(winLength*winLength);
+          dist.resize(winLength*winLength);
+          int count = 0;
+          int bestValue = -1;
+          double lowestValue = 0;
+
+          for(int k = 0; k < winLength/2; k++)
+          {
+            for(int l = 0; l < winLength; l++)
+            {
+              Point2i relPos, refPos, rrPos;
+
+              relPos = Point2i(x-(windowSize+l),y-(windowSize+k));
+
+              if(windowInImage(relPos.x,relPos.y,output,windowSize))
+              {
+                refPos = linearArray.at(relPos.y*cols + relPos.x);
+
+                if(windowInImage(refPos.x,refPos.y,output,windowSize))
+                {
+                  rrPos = Point2i(refPos.x + (l-windowSize),refPos.y+(k-windowSize));
+
+                  if(windowInImage(rrPos.x,rrPos.y,output,windowSize))
+                  {
+                    candidates.at(count) = Point2i(rrPos.x,rrPos.y);
+                    Mat templ9 = getNeighbourhoodWindow(src,rrPos,windowSize);
+                    dist.at(count) = getDist(templ8,templ9);
+
+                    if(dist.at(count) < lowestValue || count == 0)
+                    {
+                      bestValue = count;
+                      lowestValue = dist.at(count);
+                    }
+                    count++;
+                  }
+                }
+              }
+            }
+          }
+          cout << bestValue << endl;
+          cout << "pos" << endl;
+          cout << x << endl;
+          cout << y << endl;
+          if(bestValue >= 0)
+          {
+            output.at<int>(y,x,0) = src.at<int>(candidates.at(bestValue).y,candidates.at(bestValue).x,0);
+            newLinearArray.at(y*cols + x) = candidates.at(bestValue);
+          }
+        }
+      }
+
+      linearArray = newLinearArray;
+      i++;
+    }
+
     //Mat templ8 = getNeighbourhoodWindow(output,Point2i(40,30),2);
 
     namedWindow( window_name2, WINDOW_AUTOSIZE );
     imshow("Processed Image",output);
 
     imwrite( "Randomised_Image.tiff", output );
-    imwrite("ShouldBeEmmaAgain?.tiff", src);
 
     waitKey();
     return 0;
