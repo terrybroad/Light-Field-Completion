@@ -45,7 +45,7 @@ Mat getNeighbourhoodWindow(const Mat &img, Point2i pt, int windowSize)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-double getDist(const Mat &templ8, const Mat &templ9)
+double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
 {
   double dist = 0;
 
@@ -55,22 +55,23 @@ double getDist(const Mat &templ8, const Mat &templ9)
   split(templ8,channels1);
   split(templ9,channels2);
 
-  for(int i = 0; i < templ8.rows; i++)
+  for(int i = 0; i < windowSize+1; i++)
   {
     for(int j = 0; j < templ8.cols; j++)
     {
-      if(( i != floor(templ8.rows / 2) && j != floor(templ8.cols/2) && j < floor(templ8.cols/2) ) || (i != floor(templ8.rows / 2) && j < ceil(templ8.cols/2)))
+      if( (i < windowSize)) || (i == windowSize && j < windowSize))
       {
         for(int k = 0; k < 3; k++)
         {
-          dist += abs(channels1.at(k).at<int>(i,j) - channels2.at(k).at<int>(i,j));
+          dist += abs((channels1.at(k).at<int>(i,j) - channels2.at(k).at<int>(i,j)))^2;
         }
       }
     }
   }
 
-  return dist;
+  return sqrt(dist);
 }
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //                    MAIN FUNCTION
@@ -237,7 +238,7 @@ int main( int argc, char** argv )
                   {
                     candidates.at(count) = Point2i(rrPos.x,rrPos.y);
                     Mat templ9 = getNeighbourhoodWindow(src,rrPos,windowSize);
-                    dist.at(count) = getDist(templ8,templ9);
+                    dist.at(count) = getDist(templ8,templ9,windowSize);
 
                     if(dist.at(count) < lowestValue || count == 0)
                     {
