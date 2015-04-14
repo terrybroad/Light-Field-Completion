@@ -34,9 +34,9 @@ Mat getNeighbourhoodWindow(const Mat &img, Point2i pt, int windowSize)
   {
     for(int x = 0; x < output.cols; x++)
     {
-      if(inImage( pt.y - windowSize + y, pt.x - windowSize + x, img))
+      if(inImage( pt.x - windowSize + x, pt.y - windowSize + y, img))
       {
-        output.at<int>(y, x) = img.at<int>(pt.y - windowSize + y, pt.x - windowSize + x);
+        output.at<int>(y, x, 0) = img.at<int>(pt.y - windowSize + y, pt.x - windowSize + x, 0);
       }
     }
   }
@@ -55,11 +55,14 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
   split(templ8,channels1);
   split(templ9,channels2);
 
+  int count;
+
   for(int i = 0; i < windowSize+1; i++)
   {
     for(int j = 0; j < templ8.cols; j++)
     {
-      if( (i < windowSize)) || (i == windowSize && j < windowSize))
+      count++;
+      if( (i < windowSize) || (i == windowSize && j < windowSize))
       {
         for(int k = 0; k < 3; k++)
         {
@@ -69,7 +72,67 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
     }
   }
 
-  return sqrt(dist);
+  return sqrt(dist)/count;
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+int findBestPixel(const Mat &templ8, const Mat &img,int windowSize)
+{
+  Point2i bestPixel;
+  double bestValue = -1;
+
+  for(int y = 0; y < img.rows; y++)
+  {
+    for(int x = 0; x < img.cols; x++)
+    {
+      if(windowInImage(x,y,img,windowSize))
+      {
+        Mat templ9 = getNeighbourhoodWindow(src,Point2i(x,y),windowSize);
+
+        double dist = getDist(templ8,templ9,windowSize);
+
+        if(dist < bestValue || bestValue < 0)
+        {
+          bestValue = dist;
+          bestPixel.x = x;
+          bestPixel.y = y;
+        }
+      }
+    }
+  }
+  cout << "bestPixel x" << endl; cout << bestPixel.x << endl;
+  cout << "bestPixel y" << endl; cout << bestPixel.y << endl;
+  cout << "dist" << endl; cout << bestValue << endl;
+
+  return img.at<int>(bestPixel.y,bestPixel.x,0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+int findBestPixelFast(const Mat &templ8, const vector<Mat> &templates,int rows, int cols,int windowSize)
+{
+  Point2i bestPixel;
+  double bestValue = -1;
+
+  for(int y = windowSize; y < rows-windowSize; y++)
+  {
+    for(int x = windowSize; x < cols-windowSize; x++)
+    {
+        double dist = getDist(templ8,templates.at(y*cols + x),windowSize);
+
+        if(dist < bestValue || bestValue < 0)
+        {
+          bestValue = dist;
+          bestPixel.x = x;
+          bestPixel.y = y;
+        }
+    }
+  }
+  cout << "bestPixel x" << endl; cout << bestPixel.x << endl;
+  cout << "bestPixel y" << endl; cout << bestPixel.y << endl;
+  cout << "dist" << endl; cout << bestValue << endl;
+
+  return templates.at(bestPixel.y*cols+bestPixel.x).at<int>(windowSize,windowSize,0);
 }
 
 
@@ -92,7 +155,7 @@ int main( int argc, char** argv )
     int rows = src.rows;
     int cols = src.cols;
 
-    int windowSize = 11;
+    int windowSize = 4;
     int winLength = (windowSize*2) + 1;
 
     cout << rows << endl;
@@ -129,81 +192,7 @@ int main( int argc, char** argv )
       }
     }
 
-/*
-    // -------------------------------------------------------
-    //                Check Pixels
-    // -------------------------------------------------------
-    for(int i = 0; i < output.rows/4; i++)
-    {
-      for(int j = 0; j < output.cols; j++)
-      {
-          Mat templ8 = getNeighbourhoodWindow(output,Point2i(i,j),windowSize);
-
-          vector<Point2i> candidates;
-          vector<double> dist;
-          int count = 0;
-          int bestValue = 0;
-          double lowestValue = 0;
-
-          candidates.resize(winLength*winLength);
-          dist.resize(winLength*winLength);
-
-          for(int k = 0; k < winLength; k++)
-          {
-            for(int l = 0; l < winLength; l++)
-            {
-              Point2i relPos, refPos, rrPos;
-
-
-              relPos = Point2i(i-(windowSize+k),j-(windowSize+l));
-
-              if( relPos.x > windowSize && relPos.y > windowSize && relPos.x < rows - windowSize && relPos.y < cols - windowSize)
-              {
-                  refPos = linearArray.at(relPos.x*rows + relPos.y);
-
-                  if(windowInImage(relPos.x,relPos.y,output,windowSize))
-                  {
-
-                    rrPos = Point2i(refPos.x + (k-windowSize),refPos.y+(l-windowSize));
-                    //cout << "thrills" << endl;
-
-                    if(windowInImage(rrPos.x,rrPos.y,output,windowSize))
-                    {
-                      candidates.at(count) = Point2i(rrPos.x,rrPos.y);
-
-                      Mat templ9 = getNeighbourhoodWindow(src,rrPos,windowSize);
-
-                      //cout << "pills" << endl;
-                      dist.at(count) = getDist(templ8,templ9);
-
-                        if(dist.at(count) < lowestValue || count == 0)
-                        {
-                          bestValue = count;
-                          lowestValue = dist.at(count);
-                          //cout << "lager" << endl;
-                        }
-
-                      count++;
-                     }
-                   }
-                }
-
-
-             }
-
-            }
-
-            cout << bestValue << endl;
-            cout << dist.at(bestValue) << endl;
-
-        output.at<int>(i,j,0) = src.at<int>(candidates.at(bestValue).y,candidates.at(bestValue).x,0);
-
-
-      }
-    }
-
-*/
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 1; i++)
     {
       for(int y = 0; y < rows; y++)
       {
