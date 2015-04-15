@@ -65,28 +65,24 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
   split(templ8,channels1);
   split(templ9,channels2);
 
-  int count;
+  int count = 0;
 
-  for(int i = 0; i < templ8.rows; i++)
+  for(int i = 0; i < windowSize+1; i++)
   {
     for(int j = 0; j < templ8.cols; j++)
     {
-
-      if( i != windowSize && j != windowSize)
+      if( (i < windowSize) || (i == windowSize && j < windowSize))
       {
-        //if(mask1.at<int>(i,j) == 0 && mask2.at<int>(i,j) == 0)
-        //{
-          for(int k = 0; k < 3; k++)
-          {
-            count++;
-            dist += abs((channels1.at(k).at<int>(i,j,0) - channels2.at(k).at<int>(i,j,0)))^2;
-          }
-        //}
+        for(int k = 0; k < 3; k++)
+        {
+          count++;
+          dist += abs((channels1.at(k).at<int>(i,j) - channels2.at(k).at<int>(i,j)))^2;
+        }
       }
     }
   }
 
-  return sqrt(dist)/count;
+  return sqrt(dist/count);
 }
 
 
@@ -95,14 +91,15 @@ const Point2i findBestPixelGrow(const Mat &templ8, const vector<Mat> &templates,
 {
   Point2i bestPixel;
   Point2i ptemp;
-  double bestValue = 10;
-  double dist = 0;
+  double bestValue = 100;
+  //double dist = 0;
 
   int n = 1;
 
   bool yes = false;
 
-  while(!yes)
+/*
+  while(n < 100)
   {
     for(int i = -1; i < 2; i+=2) //ALTERNATE SIGN (-,-) then (-,+) then (+,-) then (+,+) -1,-1 ... -1,1 .. 1,-1,
     {
@@ -119,7 +116,7 @@ const Point2i findBestPixelGrow(const Mat &templ8, const vector<Mat> &templates,
           {
             //if(mask.at<int>(ptemp.y,ptemp.x,0) == 0)
             //{
-              dist = getDist(templ8,templates.at(ptemp.y*cols + ptemp.x),windowSize);
+              double dist = getDist(templ8,templates.at(ptemp.y*cols + ptemp.x),windowSize);
 
               if(dist < bestValue)
               {
@@ -127,7 +124,7 @@ const Point2i findBestPixelGrow(const Mat &templ8, const vector<Mat> &templates,
                 bestPixel.x = ptemp.x;
                 bestPixel.y = ptemp.y;
               }
-              if(bestValue < 0.4)
+              if(bestValue < 0.05 )
               {
                 yes = true;
               }
@@ -138,6 +135,25 @@ const Point2i findBestPixelGrow(const Mat &templ8, const vector<Mat> &templates,
 
     n++;
   }
+
+*/
+
+  for(int y = windowSize; y < rows-windowSize; y++)
+  {
+    for(int x = windowSize; x < cols-windowSize; x++)
+    {
+        double dist = getDist(templ8,templates.at(y*cols + x),windowSize);
+
+        if(dist < bestValue || bestValue < 0)
+        {
+          bestValue = dist;
+          bestPixel.x = x;
+          bestPixel.y = y;
+        }
+    }
+  }
+
+
   cout << "n " << endl; cout << n << endl;
   cout << "bestPixel y" << endl; cout << bestPixel.y << endl;
   cout << "bestPixel x" << endl; cout << bestPixel.x << endl;
@@ -224,8 +240,9 @@ int main( int argc, char** argv )
               {
                 if(windowInImage(x,y,img,windowSize))
                 {
+                  //templates.at(y*img.cols + x)
                   templates.at(y*img.cols + x) = getNeighbourhoodWindow(img,Point2i(x,y),windowSize);
-                  templates.at(y*inpaintMask.cols + x) = getNeighbourhoodWindow(inpaintMask,Point2i(x,y),windowSize);
+                  masks.at(y*inpaintMask.cols + x) = getNeighbourhoodWindow(inpaintMask,Point2i(x,y),windowSize);
                 }
               }
             }
@@ -240,7 +257,7 @@ int main( int argc, char** argv )
                 if(inpaintMask.at<int>(y,x,0) != 0)
                 {
                   Point2i pos(x,y);
-                  Mat templ8 = getNeighbourhoodWindow(texFilled,pos,windowSize);
+                  Mat templ8 = getNeighbourhoodWindow(img,pos,windowSize);
                   Point2i newPos = findBestPixelGrow(templ8,templates,inpaintMask,img.rows,img.cols,masks,pos,windowSize);
                   texFilled.at<int>(pos.y,pos.x,0) = img.at<int>(newPos.y,newPos.x,0);
                   inpainted.at<int>(newPos.y,newPos.x,0) = 0;

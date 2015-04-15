@@ -1,5 +1,6 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/types_c.h"
 #include <iostream>
 #include <algorithm>    // std::shuffle
 #include <array>        // std::array
@@ -55,24 +56,26 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
   split(templ8,channels1);
   split(templ9,channels2);
 
-  int count;
+  int count = 0;
 
   for(int i = 0; i < windowSize+1; i++)
   {
     for(int j = 0; j < templ8.cols; j++)
     {
-      count++;
       if( (i < windowSize) || (i == windowSize && j < windowSize))
       {
         for(int k = 0; k < 3; k++)
         {
+          count++;
           dist += abs((channels1.at(k).at<int>(i,j) - channels2.at(k).at<int>(i,j)))^2;
+
+          cout << channels1.at(k).at<int>(i,j) << endl; cout << "mad cunt" << endl;
         }
       }
     }
   }
 
-  return sqrt(dist)/count;
+  return sqrt(dist/count);
 }
 
 
@@ -142,8 +145,9 @@ int findBestPixelFast(const Mat &templ8, const vector<Mat> &templates,int rows, 
 int main( int argc, char** argv )
 {
     /// Load the source image
-    src = imread( argv[1], 3 );
+    Mat src0 = imread( argv[1]);
 
+    cvtColor(src0, src, CV_BGR2Lab);
     namedWindow( window_name1, WINDOW_AUTOSIZE );
 
 
@@ -203,12 +207,13 @@ int main( int argc, char** argv )
         }
       }
     }
-
+    Mat output0;
+    cvtColor(output, output0, CV_Lab2BGR);
 
     namedWindow( window_name2, WINDOW_AUTOSIZE );
-    imshow("Processed Image",output);
-
-    imwrite( "output Image.tiff", output );
+    imshow("Processed Image",output0);
+    imshow("LabImage",output);
+    imwrite( "output Image.tiff", output0 );
 
     waitKey();
     return 0;

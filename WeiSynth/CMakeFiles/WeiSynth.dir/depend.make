@@ -5,6 +5,7 @@ CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: WeiSynth.cpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/base.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/bufferpool.hpp
+CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/core_c.h
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/cvdef.h
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/cvstd.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/cvstd.inl.hpp
@@ -17,6 +18,7 @@ CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/persiste
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/ptr.inl.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/traits.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/types.hpp
+CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/types_c.h
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/utility.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/core/version.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/highgui.hpp
@@ -24,5 +26,6 @@ CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/highgui/highg
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/imgcodecs.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/imgproc.hpp
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/imgproc/imgproc.hpp
+CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/imgproc/types_c.h
 CMakeFiles/WeiSynth.dir/WeiSynth.cpp.o: /usr/local/include/opencv2/videoio.hpp
 
