@@ -53,6 +53,10 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
   vector<Mat> channels1(3);
   vector<Mat> channels2(3);
 
+  Mat templ82,templ92;
+
+
+
   split(templ8,channels1);
   split(templ9,channels2);
 
@@ -64,12 +68,18 @@ double getDist(const Mat &templ8, const Mat &templ9, int windowSize)
     {
       if( (i < windowSize) || (i == windowSize && j < windowSize))
       {
+        Vec3b a,b;
+
+
+        a = templ8.at<Vec3b>(i,j);
+        b = templ9.at<Vec3b>(i,j);
+
         for(int k = 0; k < 3; k++)
         {
           count++;
           dist += abs((channels1.at(k).at<int>(i,j) - channels2.at(k).at<int>(i,j)))^2;
 
-          cout << channels1.at(k).at<int>(i,j) << endl; cout << "mad cunt" << endl;
+          cout << (int)a.val[k] - b.val[k]<< endl; cout << "mad cunt" << endl;
         }
       }
     }
