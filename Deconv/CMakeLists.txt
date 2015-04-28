@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( deconv )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( deconv deconv.cpp )
+target_link_libraries( deconv ${OpenCV_LIBS} )

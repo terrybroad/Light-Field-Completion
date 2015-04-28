@@ -129,7 +129,7 @@ const Point2i findBestPixel(const Mat &templ8, const vector<Mat> &templates, con
   int numCan = 0;
 
 
-  while(count < 1500)
+  while(count < 1000)
   {
     for(int i = -1; i < 2; i+=2) //ALTERNATE SIGN (-,-) then (-,+) then (+,-) then (+,+) -1,-1 ... -1,1 .. 1,-1,
     {
@@ -192,6 +192,7 @@ static void onMouse( int event, int x, int y, int flags, void* )
             prevPt = pt;
         line( inpaintMask, prevPt, pt, Scalar::all(255), 5, 200, 0 );
         line( srcBGR, prevPt, pt, Scalar::all(255), 5, 200, 0 );
+      //  line( depthMap, prevPt, pt, Scalar::all(255), 5, 200, 0 );
         prevPt = pt;
         imshow("image", srcBGR);
     }
@@ -205,9 +206,10 @@ int main(int argc, char** argv )
 
     cvtColor(srcBGR, srcLAB, CV_BGR2Lab);
 
-    int windowSize = 5;
+    int windowSize = 11;
     int winLength = (windowSize*2) + 1;
 
+    Mat depth = imread( "depthmap2.jpg", 1);
     namedWindow( "image", WINDOW_NORMAL );
       namedWindow( "output", WINDOW_NORMAL );
     imshow("image", srcBGR);
@@ -370,8 +372,10 @@ int main(int argc, char** argv )
 
             cvtColor(outLAB, outBGR, CV_Lab2BGR);
             imshow("output",outBGR);
-        }
 
+        }
+        imwrite("filled.jpg",outBGR);
+        imwrite("masked.jpg",srcBGR);
     }
 
 

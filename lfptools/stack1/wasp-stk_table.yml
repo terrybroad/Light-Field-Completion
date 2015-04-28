@@ -1,0 +1,116 @@
+---
+  picture:
+    frameArray:
+      -
+        frame:
+          metadataRef: "sha1-1822a0d2f266d830e8dfb0399edb95c93d1f868e"
+          privateMetadataRef: "sha1-990a1858fe077fa0601df485704fc1d674a5e6b0"
+          imageRef: "sha1-501b933203b552f59a4976773b7772942f1abbb6"
+        parameters:
+          vendorContent:
+            com.lytro.tags:
+              darkFrame: false
+              modulationFrame: false
+    viewArray:
+      -
+        type: "com.lytro.stars"
+        vendorContent:
+          starred: false
+    accelerationArray:
+      -
+        type: "com.lytro.acceleration.refocusStack"
+        generator: "Lytro 1.0.1 (120411.4217)"
+        vendorContent:
+          viewParameters: {}
+          displayParameters:
+            displayDimensions:
+              mode: "fixedToValue"
+              value:
+                width: 1080
+                height: 1080
+          defaultLambda: 0
+          depthLut:
+            width: 20
+            height: 20
+            representation: "raw"
+            imageRef: "sha1-9eca8b67eb6e1a8d9be8e41ce4644707703c15b3"
+          imageArray:
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: -12.53745174407959
+              imageRef: "sha1-bddffa504ceaf4eb368481a9f07ae76891a3f647"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: -9.159247398376465
+              imageRef: "sha1-0dc0960557a5dd361eba8fa1305e763206312b85"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: -6.850061416625977
+              imageRef: "sha1-261684b3ffb9b288178b0459436770245ac7dbb0"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: -4.217776298522949
+              imageRef: "sha1-cee50f2d6632f4f4ef93732faa331aa72b645631"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: -1.5004557371139526
+              imageRef: "sha1-81eec99fe8c1b648619ec828bfbe2271b1cfe60d"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 1.9486768245697021
+              imageRef: "sha1-b3420a5f5ed7fa715425565bf0c0b481444916b8"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 5.153261184692383
+              imageRef: "sha1-937e56f998d8bf236653bd57e48a234c097ecc90"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 8.72055721282959
+              imageRef: "sha1-611bee3f7aa4a168ea9eaafa66c5194e44cdeef8"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 13.982215881347656
+              imageRef: "sha1-5f73017c8cf2615fa846a36bdf9452a5130628ce"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 14.93261432647705
+              imageRef: "sha1-71e3b9b516ec7d917dfb69f162951e29f7a6b448"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 15.895035743713379
+              imageRef: "sha1-7c79e4ac231853bf26bc8d72a777b283bdf8263a"
+            -
+              representation: "jpeg"
+              width: 1080
+              height: 1080
+              lambda: 16.94048309326172
+              imageRef: "sha1-6591067bdf920a75bc18038fa8161c8c93daf5a3"
+    derivationArray:
+      - "sha1-7c55adef4fce3cccf188a36e207315d35288c29c"
+  thumbnailArray: []
+  version:
+    major: 1
+    minor: 0
+    provisionalDate: "2011-08-03"

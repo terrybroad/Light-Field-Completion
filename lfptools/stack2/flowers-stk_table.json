@@ -1,0 +1,135 @@
+{
+	"picture" : {
+		"frameArray" : [
+			{
+				"frame" : {
+					"metadataRef" : "sha1-eb0d7e3bfe27bc2fbbe3359a0c5af17ae6af9f41",
+					"privateMetadataRef" : "sha1-990a1858fe077fa0601df485704fc1d674a5e6b0",
+					"imageRef" : "sha1-7f268330d9f211a33a6515564e353edd75e0c5ee"
+				},
+				"parameters" : {
+					"vendorContent" : {
+						"com.lytro.tags" : {
+							"darkFrame" : false,
+							"modulationFrame" : false
+						}
+					}
+				}
+			}
+		],
+		"viewArray" : [
+			{
+				"type" : "com.lytro.stars",
+				"vendorContent" : {
+					"starred" : false
+				}
+			}
+		],
+		"accelerationArray" : [
+			{
+				"type" : "com.lytro.acceleration.refocusStack",
+				"generator" : "Lytro Lightfield Engine 1.000000",
+				"vendorContent" : {
+					"viewParameters" : {},
+					"displayParameters" : {
+						"displayDimensions" : {
+							"mode" : "fixedToValue",
+							"value" : {
+								"width" : 1080,
+								"height" : 1080
+							}
+						}
+					},
+					"defaultLambda" : 0,
+					"depthLut" : {
+						"width" : 20,
+						"height" : 20,
+						"representation" : "raw",
+						"imageRef" : "sha1-0b007984fda57d602355c600379032b1f5027045"
+					},
+					"imageArray" : [
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -3.648465633392334,
+							"imageRef" : "sha1-bd64c484da03717f789f132e1648526c6c05bbc5"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -2.7217307090759277,
+							"imageRef" : "sha1-abf96818148c86d88e4e394dd30420a228aa61bb"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -1.5638015270233154,
+							"imageRef" : "sha1-f99fd0a06660b295723c652ad338ec36697ec1e4"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 1.4586615562438965,
+							"imageRef" : "sha1-bb3e983edffd31b63615a851316e80282dfce125"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 2.1561119556427002,
+							"imageRef" : "sha1-deb932b4ba80e945a785052ab75234add8a9858e"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 3.0488529205322266,
+							"imageRef" : "sha1-1995eacfbc1538f96cb8098ea113441c4345c44b"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 3.9199502468109131,
+							"imageRef" : "sha1-d074f204f1aea9e6adef80972299389eb328011c"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 4.9035496711730957,
+							"imageRef" : "sha1-643fe311aaf841d5c613e188eda96fc7248b128f"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 5.8856868743896484,
+							"imageRef" : "sha1-3fb71d386517824ef8161b2b6dd7703445b6e4e5"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 6.9845333099365234,
+							"imageRef" : "sha1-5a9963b796aa45e74560125e59312d22211e4db2"
+						}
+					]
+				}
+			}
+		],
+		"derivationArray" : [
+			"sha1-b055ab41c38155def491296a244fc6c7e7f0b1f0"
+		]
+	},
+	"thumbnailArray" : [],
+	"version" : {
+		"major" : 1,
+		"minor" : 0,
+		"provisionalDate" : "2011-08-03"
+	}
+}

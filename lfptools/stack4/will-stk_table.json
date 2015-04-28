@@ -1,0 +1,142 @@
+{
+	"picture" : {
+		"frameArray" : [
+			{
+				"frame" : {
+					"metadataRef" : "sha1-9b0bf2d018c87803fdccca4eb037a3c458df64b9",
+					"privateMetadataRef" : "sha1-7107e13c10ba804c9f6d671c86c67239bc8efe42",
+					"imageRef" : "sha1-7b93f61b7e368eba71360210bce118f194e5bba3"
+				},
+				"parameters" : {
+					"vendorContent" : {
+						"com.lytro.tags" : {
+							"darkFrame" : false,
+							"modulationFrame" : false
+						}
+					}
+				}
+			}
+		],
+		"viewArray" : [
+			{
+				"type" : "com.lytro.stars",
+				"vendorContent" : {
+					"starred" : false
+				}
+			}
+		],
+		"accelerationArray" : [
+			{
+				"type" : "com.lytro.acceleration.refocusStack",
+				"generator" : "Lytro 1.0.1 (120411.4217)",
+				"vendorContent" : {
+					"viewParameters" : {},
+					"displayParameters" : {
+						"displayDimensions" : {
+							"mode" : "fixedToValue",
+							"value" : {
+								"width" : 1080,
+								"height" : 1080
+							}
+						}
+					},
+					"defaultLambda" : 0,
+					"depthLut" : {
+						"width" : 20,
+						"height" : 20,
+						"representation" : "raw",
+						"imageRef" : "sha1-d6bac81ded84c692295e7f45162128a8e3e6908f"
+					},
+					"imageArray" : [
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -12.842080116271972656,
+							"imageRef" : "sha1-38081ff7ea5d06096915a93abe8d33ebe2668d86"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -11.870044708251953125,
+							"imageRef" : "sha1-d73628534ae5715918d02d19f95071d207e03e7a"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -10.96982574462890625,
+							"imageRef" : "sha1-00dcde78467eb0fd77da2e2be722944cd595e499"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -9.8426055908203125,
+							"imageRef" : "sha1-ce45fb784528a7bf9df322634bf353cb9e4d88b1"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -8.1837892532348632812,
+							"imageRef" : "sha1-961f72c22180cf9907494417f11887385b307d7b"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -7.1593303680419921875,
+							"imageRef" : "sha1-673b429796f014f67454fdd87fa04e4e142f3f48"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -6.1028661727905273438,
+							"imageRef" : "sha1-e79084f0bdc1bf7cd82ae57f8aee7281530bf464"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -4.7955861091613769531,
+							"imageRef" : "sha1-5e0e240ef1e8413bfb5203a2beb4e3c52d182e4c"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -3.7095954418182373047,
+							"imageRef" : "sha1-5912a147a851d5b0efc3df5925f7692da9504a4b"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : -2.1948003768920898438,
+							"imageRef" : "sha1-1e67afde7a9d6b5f35a1d1827855499f76b979ab"
+						},
+						{
+							"representation" : "jpeg",
+							"width" : 1080,
+							"height" : 1080,
+							"lambda" : 1.5068813562393188477,
+							"imageRef" : "sha1-10f9173af9df14e12a538ba73891ba0d63934479"
+						}
+					]
+				}
+			}
+		],
+		"derivationArray" : [
+			"sha1-00d5b58b258b85afdf241f64aebc814b23b2cfe9"
+		]
+	},
+	"thumbnailArray" : [],
+	"version" : {
+		"major" : 1,
+		"minor" : 0,
+		"provisionalDate" : "2012-10-23"
+	}
+}

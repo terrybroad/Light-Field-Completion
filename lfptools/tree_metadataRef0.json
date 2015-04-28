@@ -1,0 +1,143 @@
+{
+	"type" : "lightField",
+	"image" : {
+		"width" : 3280,
+		"height" : 3280,
+		"orientation" : 1,
+		"representation" : "rawPacked",
+		"rawDetails" : {
+			"pixelFormat" : {
+				"rightShift" : 0,
+				"black" : {
+					"r" : 168,
+					"gr" : 168,
+					"gb" : 168,
+					"b" : 168
+				},
+				"white" : {
+					"r" : 4095,
+					"gr" : 4095,
+					"gb" : 4095,
+					"b" : 4095
+				}
+			},
+			"pixelPacking" : {
+				"endianness" : "big",
+				"bitsPerPixel" : 12
+			},
+			"mosaic" : {
+				"tile" : "r,gr:gb,b",
+				"upperLeftPixel" : "b"
+			}
+		},
+		"color" : {
+			"ccmRgbToSrgbArray" : [
+				3.1115827560424804688,
+				-1.9393929243087768555,
+				-0.17218986153602600098,
+				-0.36290559172630310059,
+				1.6408803462982177734,
+				-0.27797481417655944824,
+				0.078967012465000152588,
+				-1.1558042764663696289,
+				2.0768373012542724609
+			],
+			"gamma" : 0.41666001081466674805,
+			"applied" : {},
+			"whiteBalanceGain" : {
+				"r" : 1.0703125,
+				"gr" : 1,
+				"gb" : 1,
+				"b" : 1.2109375
+			}
+		},
+		"modulationExposureBias" : -1.152003169059753418,
+		"limitExposureBias" : 2.384185791015625e-07
+	},
+	"devices" : {
+		"clock" : {
+			"zuluTime" : "2015-04-23T18:42:18.000Z"
+		},
+		"sensor" : {
+			"bitsPerPixel" : 12,
+			"mosaic" : {
+				"tile" : "r,gr:gb,b",
+				"upperLeftPixel" : "b"
+			},
+			"iso" : 200,
+			"analogGain" : {
+				"r" : 5.4375,
+				"gr" : 4,
+				"gb" : 4,
+				"b" : 4.625
+			},
+			"pixelPitch" : 1.3999999761581419596e-06
+		},
+		"lens" : {
+			"infinityLambda" : 5.0027327537536621094,
+			"focalLength" : 0.0064800000190734863628,
+			"zoomStep" : 978,
+			"focusStep" : 599,
+			"fNumber" : 1.9099999666213989258,
+			"temperature" : 25.4273681640625,
+			"temperatureAdc" : 2855,
+			"zoomStepperOffset" : 1,
+			"focusStepperOffset" : 25,
+			"exitPupilOffset" : {
+				"z" : 0.18774861145019530739
+			}
+		},
+		"ndfilter" : {
+			"exposureBias" : 0
+		},
+		"shutter" : {
+			"mechanism" : "sensorOpenApertureClose",
+			"frameExposureDuration" : 0.0041808062233030796051,
+			"pixelExposureDuration" : 0.0041808062233030796051
+		},
+		"soc" : {
+			"temperature" : 35.469818115234375,
+			"temperatureAdc" : 3057
+		},
+		"accelerometer" : {
+			"sampleArray" : [
+				{
+					"x" : 0.015686275437474250793,
+					"y" : 0.94509804248809814453,
+					"z" : -0.24705882370471954346,
+					"time" : 0
+				}
+			]
+		},
+		"mla" : {
+			"tiling" : "hexUniformRowMajor",
+			"lensPitch" : 1.399999999999999979e-05,
+			"rotation" : 0.0019158374052494764328,
+			"defectArray" : [],
+			"config" : "com.lytro.mla.11",
+			"scaleFactor" : {
+				"x" : 1,
+				"y" : 1.0001670122146606445
+			},
+			"sensorOffset" : {
+				"x" : -4.615694046020507852e-06,
+				"y" : -1.4832009077072143317e-06,
+				"z" : 2.5000000000000001198e-05
+			}
+		}
+	},
+	"modes" : {
+		"creative" : "auto",
+		"manualControls" : false,
+		"exposureDurationMode" : "auto",
+		"isoMode" : "auto",
+		"ndFilterMode" : "auto",
+		"exposureLock" : false,
+		"overscan" : 1.0526316165924072266
+	},
+	"camera" : {
+		"make" : "Lytro, Inc.",
+		"model" : "F01",
+		"firmware" : "v1.0a204, vv1.2.1, Mon Jun 24 13:57:36 PDT 2013, 8f438880e14a8b14233f407b4772467306fcf891, mods=0, ofw=0"
+	}
+}
