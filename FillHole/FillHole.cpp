@@ -184,7 +184,7 @@ static void onMouse( int event, int x, int y, int flags, void* )
     if( event == EVENT_LBUTTONUP || !(flags & EVENT_FLAG_LBUTTON) )
         prevPt = Point(-1,-1);
     else if( event == EVENT_LBUTTONDOWN )
-        prevPt = Point(x,y);
+        prevPt = Point(floor(x/2),floor(y/2));
     else if( event == EVENT_MOUSEMOVE && (flags & EVENT_FLAG_LBUTTON) )
     {
         Point pt(x,y);
@@ -210,8 +210,9 @@ int main(int argc, char** argv )
     int winLength = (windowSize*2) + 1;
 
     Mat depth = imread( "depthmap2.jpg", 1);
-    namedWindow( "image", WINDOW_NORMAL );
-      namedWindow( "output", WINDOW_NORMAL );
+    namedWindow( "image", CV_WINDOW_AUTOSIZE );
+    /namedWindow( "output", CV_WINDOW_AUTOSIZE );
+
     imshow("image", srcBGR);
     setMouseCallback( "image", onMouse, 0 );
 
