@@ -40,6 +40,24 @@ opencv2/photo/photo.hpp
 iostream
 -
 
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/FocalStackPropagation.cpp
+opencv2/core/core.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/imgproc/types_c.h
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/opencv2/imgproc/types_c.h
+opencv2/imgcodecs.hpp
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/opencv2/imgcodecs.hpp
+opencv2/photo/photo.hpp
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/opencv2/photo/photo.hpp
+iostream
+-
+algorithm
+-
+
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/LFCompletion.cpp
 opencv2/core/core.hpp
 -
@@ -59,6 +77,8 @@ DepthMap.cpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/DepthMap.cpp
 FillHole.cpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHole.cpp
+FocalStackPropagation.cpp
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/FocalStackPropagation.cpp
 
 /usr/local/include/opencv2/core.hpp
 opencv2/core/cvdef.h

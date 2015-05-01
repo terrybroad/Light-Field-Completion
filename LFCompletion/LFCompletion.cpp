@@ -7,12 +7,17 @@
 #include <iostream>
 #include "DepthMap.cpp"
 #include "FillHole.cpp"
+#include "FocalStackPropagation.cpp"
 
 using namespace cv;
 using namespace std;
 Mat infocus, infocusS, out, outS, mask, maskS, depthMap,depthMapS,depthMapF,depthMapFS;
 vector<Mat> imgs;
-vector<Mat> inputs;
+vector<Mat> laplacians;
+vector<int> segmentIndicies;
+vector<Mat> segments;
+vector<Mat> gauss;
+vector<Mat> windows;
 
 Point prevPt(-1,-1);
 
@@ -75,9 +80,16 @@ int main(int argc, char** argv )
       }
     }
 
-    inputs = createDepthMap(imgs);
-    depthMap = inputs.at(0);
-    infocus = inputs.at(1);
+    laplacians = laplacianFocalStack(imgs);
+    gauss = differenceOfGaussianFocalStack(imgs);
+
+    depthMap = createDepthMap(laplacians);
+    infocus = createInFocusImage(depthMap,imgs);
+
+
+
+
+
 
     Size size = infocus.size();
     Size smallSize = size/2;
@@ -111,6 +123,33 @@ int main(int argc, char** argv )
           resize(maskS,mask,size,INTER_CUBIC);
           notFilled = false;
           depthMapF = fillDepthMap(depthMap,mask);
+
+
+
+
+          //------TEST POST PLEASE IGNORE
+          //segmentIndicies.resize(imNum);
+          segmentIndicies = getDepthMapIndicies(depthMapF,mask,imNum);
+          segments = splitSegments(depthMapF,infocus,mask,segmentIndicies,imNum);
+
+
+          Mat av = averageImages(laplacians);
+          Mat minus = (laplacians.at(5) - av);
+          Rect window = getInFocusWindow(minus);
+          windows = getCroppedImages(window,imgs);
+          vector<int> cf = getCoefficients(windows,5);
+
+          Mat blurr;
+
+          GaussianBlur(segments.at(0),blurr,Size(15,15), 0);
+
+
+          Mat imped = superImpose(imgs.at(0),blurr);
+
+          imshow("blurred", blurr);
+          imshow("imped",imped);
+
+          //------NOT TEST PLEASE LEAVE
           out = fillImage(infocus,depthMapF,mask);
         }
 

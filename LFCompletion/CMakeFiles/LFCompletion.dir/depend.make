@@ -3,6 +3,7 @@
 
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: DepthMap.cpp
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: FillHole.cpp
+CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: FocalStackPropagation.cpp
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: LFCompletion.cpp
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: /usr/local/include/opencv2/core.hpp
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o: /usr/local/include/opencv2/core/base.hpp
