@@ -75,7 +75,7 @@ vector<Mat> differenceOfGaussianFocalStack(vector<Mat> &imgs)
 Mat averageImages(vector<Mat> &imgs)
 {
   Mat avIm = Mat::zeros(imgs.at(0).size(), CV_8U);
-
+  Mat avImBoosted = Mat::zeros(imgs.at(0).size(), CV_8U);;
   for(int y = 0; y < avIm.rows; y++)
   {
     for(int x = 0; x < avIm.cols; x++)
@@ -90,6 +90,10 @@ Mat averageImages(vector<Mat> &imgs)
     }
   }
 
+  imshow("avIm", avIm);
+
+  //avIm.convertTo(avImBoosted,0,0);
+  //imshow("avImBoosted", avImBoosted);
   return avIm;
 }
 

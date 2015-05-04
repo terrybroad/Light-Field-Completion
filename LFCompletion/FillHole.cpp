@@ -203,7 +203,7 @@ const Point2i findBestPixel(const Mat &templ8, const vector<Mat> &templates, con
     }
   }
 
-  if(bestValue < 0.18)
+  if(bestValue < 0.12)
   {
     cout << "Ashihkmin" << endl;
     cout << bestValue << endl;
@@ -352,12 +352,14 @@ Mat fillImage(const Mat &srcBGR, const Mat &depthMap, const Mat &inpaintMask)
     int rows = srcBGR.rows;
     int cols = srcBGR.cols;
 
+    strElement = getStructuringElement( MORPH_RECT,Size( 5, 5),Point(1,1));
+    dilate(inpaintMask,inpaintMask,strElement,Point(-1, -1), 1, 1, 1);
     maskBinary = Mat::zeros(srcBGR.size(), CV_8U);
     threshold( inpaintMask, maskBinary, 127,255,0 );
-    strElement = getStructuringElement( MORPH_RECT,Size( 3, 3),Point(1,1));
+    //strElement = getStructuringElement( MORPH_RECT,Size( 3, 3),Point(1,1));
     strElement2 = getStructuringElement( MORPH_RECT,Size( windowSize, windowSize),Point(-1,-1));
-    strElement3 = getStructuringElement( MORPH_RECT,Size( windowSize*3, windowSize),Point(-1,-1));
-    strElement4 = getStructuringElement( MORPH_RECT,Size( windowSize, windowSize*3),Point(-1,-1));
+    strElement3 = getStructuringElement( MORPH_RECT,Size( windowSize, 1),Point(-1,-1));
+    strElement4 = getStructuringElement( MORPH_RECT,Size( 1, windowSize),Point(-1,-1));
     eroded = Mat::zeros(maskBinary.size(), CV_8U);
     border = Mat::zeros(maskBinary.size(), CV_8U);
     borderBig = Mat::zeros(maskBinary.size(), CV_8U);
@@ -396,9 +398,10 @@ Mat fillImage(const Mat &srcBGR, const Mat &depthMap, const Mat &inpaintMask)
           a = inpainted.at<Vec3b>(y,x);
           b = inpainted2.at<Vec3b>(y,x);
           c = inpainted3.at<Vec3b>(y,x);
+          int randInt = rng.uniform(-17,17);
           for(int i = 0; i < 3; i++)
           {
-            int num = (int)((a.val[i] + b.val[i] + c.val[i] )/3) + rng.uniform(-17,17);
+            int num = (int)((a.val[i] + b.val[i] + c.val[i] )/3) + randInt;
             if(num < 0){num = 0;}
             if(num > 255){num = 255;}
             a.val[i] = num;

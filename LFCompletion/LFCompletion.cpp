@@ -62,12 +62,14 @@ int main(int argc, char** argv )
     bool imageLoad = true;
     int imNum = 0;
 
+
     while(imageLoad)
     {
-      imgs.resize(imNum+1);
       stringstream ss;
+      string thisFilename;
+      imgs.resize(imNum+1);
       ss << filename << imNum << ".jpg";
-      string thisFilename = ss.str();
+      thisFilename = ss.str();
       imgs.at(imNum) = imread(thisFilename,3);
       if(imgs.at(imNum).empty())
       {
@@ -83,7 +85,7 @@ int main(int argc, char** argv )
     laplacians = laplacianFocalStack(imgs);
     gauss = differenceOfGaussianFocalStack(imgs);
 
-    depthMap = createDepthMap(laplacians);
+    depthMap = createDepthMap(gauss);
     infocus = createInFocusImage(depthMap,imgs);
 
 
@@ -125,41 +127,36 @@ int main(int argc, char** argv )
           depthMapF = fillDepthMap(depthMap,mask);
 
 
-
-
-          //------TEST POST PLEASE IGNORE
-          //segmentIndicies.resize(imNum);
-          segmentIndicies = getDepthMapIndicies(depthMapF,mask,imNum);
-          segments = splitSegments(depthMapF,infocus,mask,segmentIndicies,imNum);
-
-
-          Mat av = averageImages(laplacians);
-          Mat minus = (laplacians.at(5) - av);
-          Rect window = getInFocusWindow(minus);
-          windows = getCroppedImages(window,imgs);
-          vector<int> cf = getCoefficients(windows,5);
-
-          Mat blurr;
-
-          GaussianBlur(segments.at(0),blurr,Size(15,15), 0);
-
-
-          Mat imped = superImpose(imgs.at(0),blurr);
-
-          imshow("blurred", blurr);
-          imshow("imped",imped);
-
-          //------NOT TEST PLEASE LEAVE
           out = fillImage(infocus,depthMapF,mask);
+          //out = infocus;
+          cout<< "image completed - next to propagate through the focal stack" << endl;
+
+          vector<Mat> outImages;
+          outImages = propogateFocalStack(imgs, gauss, out, mask, depthMapF);
+
+
+          for(int i = 0; i < outImages.size(); i++)
+          {
+            stringstream ss;
+            string outputName;
+            ss << filename << "_completed" << i << ".jpg";
+            outputName = ss.str();
+            //imshow(outputName, outImages.at(i));
+            imwrite(outputName, outImages.at(i));
+          }
+          notFilled = false;
         }
 
     }
 
     resize(out,outS,smallSize);
     resize(depthMapF,depthMapFS, smallSize);
-    imwrite("filled.jpg",out);
-    imwrite("depthmap.jpg",depthMapF);
-    imwrite("infocus.jpg",infocusS);
+    string name = filename+"_filled.jpg";
+    imwrite(name,out);
+    name = filename+"_depthMapFilled.jpg";
+    imwrite(name,depthMapF);
+    name = filename+"_maskArea.jpg";
+    imwrite(name,infocusS);
     while(1)
     {
     imshow("filled",outS);

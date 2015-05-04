@@ -88,12 +88,46 @@ vector<Mat> splitSegments(const Mat &depthMap, const Mat &img, const Mat &mask, 
         }
         else
         {
-          segments.at(i).at<Vec4b>(y,x) = Vec4b(255,255,255,0);
-          //segments.at(i).at<Vec4b>(y,x) = Vec4b(0,0,0,0);
+          segments.at(i).at<Vec4b>(y,x) = Vec4b(0,0,0,0);
         }
       }
     }
   }
+  return segments;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+vector<Mat> splitSegmentMasks(const Mat &depthMap, const Mat &mask, vector<int> &indicies, int imgNum)
+{
+  int arrSize = indicies.size();
+  vector<Mat> segments;
+  segments.resize(arrSize);
+  //vector<Mat> segmentsDilated;
+  //segmentsDilated.resize(arrSize);
+  //Mat strElement = getStructuringElement( MORPH_RECT,Size( 3, 3),Point(1,1));
+
+  for(int i = 0; i < arrSize; i++)
+  {
+    uchar depthMapCol = getDepthMapColour(indicies.at(i),imgNum);
+    segments.at(i) = Mat::zeros(depthMap.size(), CV_8U);
+
+    for(int y = 0; y < mask.rows; y++)
+    {
+      for(int x = 0; x < mask.cols; x++)
+      {
+        if((int) mask.at<uchar>(y,x) != 0 && (int)depthMap.at<uchar>(y,x) == (int)depthMapCol)
+        {
+          segments.at(i).at<uchar>(y,x) = (uchar) 255;
+        }
+        else
+        {
+          segments.at(i).at<uchar>(y,x) = (uchar) 0;
+        }
+      }
+    }
+    //dilate(segments.at(i), segmentsDilated.at(i),strElement,Point(-1, -1), 1, 1, 1);
+  }
+
   return segments;
 }
 
@@ -119,22 +153,41 @@ Rect getInFocusWindow(const Mat &laplace)
       }
     }
   }
-
   return Rect((bestPixel*scale),Size(scale,scale));
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+vector<Rect> getInFocusWindows(vector<Mat> &laplacians)
+{
+  vector<Rect> windows;
+  windows.resize(laplacians.size());
+
+  Mat av = averageImages(laplacians);
+  for(int i = 0; i < laplacians.size(); i++)
+  {
+    windows.at(i) = getInFocusWindow(laplacians.at(i) - av);
+  }
+
+  return windows;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 vector<Mat> getCroppedImages(const Rect window, vector<Mat> &imgs)
 {
   vector<Mat> smallImgs;
+  vector<Mat> smallImgsG;
   smallImgs.resize(imgs.size());
+  smallImgsG.resize(imgs.size());
+
   for(int i = 0; i < imgs.size(); i++)
   {
     smallImgs.at(i) = imgs.at(i)(window);
-    cvtColor(smallImgs.at(i),smallImgs.at(i),CV_BGR2GRAY);
+    cvtColor(smallImgs.at(i),smallImgsG.at(i),CV_BGR2GRAY);
   }
 
-  return smallImgs;
+ return smallImgsG;
+
+  return smallImgsG;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -151,10 +204,10 @@ int getCoeff(const Mat &focused, const Mat &notFocused)
   Mat blurred;
   int bestCoeff = 0;
   double lowestDistance = 500;
-  int stepSize = 7;
+  int stepSize = 4;
   int kSize = 0;
 
-  for(int i = 0; i < stepSize; i++)
+  for(int i = 1; i < stepSize; i++)
   {
     kSize = i*stepSize;
     kSize = (kSize*2)+1;
@@ -177,7 +230,7 @@ int getCoeff(const Mat &focused, const Mat &notFocused)
         kSize = ogCoeff+i;
         kSize = (kSize*2)+1;
 
-        GaussianBlur(focused,blurred,Size(kSize,kSize),0);
+        GaussianBlur(focused,blurred,Size(kSize,kSize),kSize);
         double dist = imDistance(blurred,notFocused);
         if(dist < lowestDistance)
         {
@@ -187,8 +240,7 @@ int getCoeff(const Mat &focused, const Mat &notFocused)
       }
     }
 
-
-  return bestCoeff;
+  return (bestCoeff*2)+1;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -211,7 +263,8 @@ vector<int> getCoefficients(vector<Mat> &imgs, int focusedImage)
   return coefficients;
 }
 
-Mat superImpose(const Mat &background, const Mat &foreground)
+//----------------------------------------------------------------------------------------------------------------------------------------
+Mat superImpose(const Mat &background, const Mat &foreground, const Mat &mask)
 {
   Mat out = background.clone();
   if(background.size() == foreground.size())
@@ -221,19 +274,16 @@ Mat superImpose(const Mat &background, const Mat &foreground)
       for(int x = 0; x < out.cols; x++)
       {
         Vec3b bVal = background.at<Vec3b>(y,x);
-        Vec4b foVal = foreground.at<Vec4b>(y,x);
+        Vec3b foVal = foreground.at<Vec3b>(y,x);
 
-        if(foVal[3] > 0)
+        int alpha = (int) mask.at<uchar>(y,x);
+        if(alpha > 0)
         {
-          double ratio = ((double)foVal[3]/255);
-
-          ratio = ratio;
+          double ratio = ((double)alpha/255);
 
           for(int i = 0; i < 3; i++)
           {
-
-            //out.at<Vec3b>(y,x)[i] = (uchar) floor(  (bVal[i] * (1-ratio) ) + ((foVal[i] *(ratio)) * ratio) ) ;
-            out.at<Vec3b>(y,x)[i] = (uchar) floor(  (bVal[i] * (1-ratio) ) + (foVal[i] * ratio) ) ;
+            out.at<Vec3b>(y,x)[i] = (uchar) floor(  (((double)bVal[i]) * (1-ratio) ) + ((double)foVal[i]* ratio) ) ;
           }
         }
         else
@@ -244,4 +294,62 @@ Mat superImpose(const Mat &background, const Mat &foreground)
     }
   }
   return out;
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+vector<Mat> propogateSegment(vector<Mat> &imgs, const Mat &infilled, const Mat &segmentMask, const Rect window, int imgIndex)
+{
+  vector<Mat> imgsOut;
+  vector<Mat> smallImgs;
+  imgsOut.resize(imgs.size());
+  smallImgs = getCroppedImages(window,imgs);
+  vector<int> coefficients = getCoefficients(smallImgs, imgIndex);
+
+  Mat segmentMaskDilated,blurredMask, blurredInfilled;
+
+  GaussianBlur(segmentMask,blurredMask, Size(11,11), 21);
+  for(int i = 0; i < imgs.size(); i++)
+  {
+    int kSize = coefficients.at(i);
+
+    if(i != imgIndex)
+    {
+      GaussianBlur(infilled, blurredInfilled, Size(kSize,kSize), kSize);
+      imgsOut.at(i) = superImpose(imgs.at(i),blurredInfilled, blurredMask);
+
+      Mat strElement = getStructuringElement( MORPH_RECT,Size( kSize, kSize),Point(1,1));
+      dilate(segmentMask, segmentMaskDilated,strElement,Point(-1, -1), 1, 1, 1);
+      GaussianBlur(segmentMaskDilated,blurredMask, Size(kSize,kSize), kSize);
+
+      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask);
+    }
+    else if(i == imgIndex)
+    {
+
+      cout << "cunt" << endl;
+      imshow("blurredMask",blurredMask);
+      imgsOut.at(i) = superImpose(imgs.at(i),infilled, blurredMask);
+    }
+  }
+
+  return imgsOut;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+vector<Mat> propogateFocalStack(vector<Mat> &imgs, vector<Mat> &laplacians, const Mat &infilled, const Mat &mask, const Mat &depthMap)
+{
+  vector<Mat> imgsOut = imgs;
+  vector<Rect> inFocusWindows = getInFocusWindows(laplacians);
+  vector<int> segmentIndicies = getDepthMapIndicies(depthMap,mask,imgs.size());
+  vector<Mat> segments = splitSegmentMasks(depthMap,mask,segmentIndicies,imgs.size());
+
+
+  for(int i = segments.size()-1; i > -1; i--)
+  {
+    int segmentIndex = segmentIndicies.at(i);
+    imgsOut = propogateSegment(imgsOut, infilled, segments.at(i), inFocusWindows.at(segmentIndex), segmentIndex);
+  }
+
+  return imgsOut;
 }
