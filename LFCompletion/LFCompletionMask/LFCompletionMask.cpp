@@ -5,10 +5,10 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/photo/photo.hpp"
 #include <iostream>
-#include "DepthMap.cpp"
-#include "FillHoleDirected.cpp"
-#include "FocalStackPropagation.cpp"
-#include "pixelStruct.h"
+#include "../DepthMap.cpp"
+#include "../FillHoleDirected.cpp"
+#include "../FocalStackPropagation.cpp"
+#include "../pixelStruct.h"
 
 using namespace cv;
 using namespace std;
@@ -112,62 +112,48 @@ int main(int argc, char** argv )
 
     bool notFilled = true;
 
+    string name;
+    name = filename+"_mask.jpg";
 
-    while(notFilled)
+    mask = imread(name,1);
+
+    if(mask.empty())
     {
-        char c = (char)waitKey();
-        //imshow("image", infocusS);
-        if( c == 27 )
-            break;
-
-        if( c == 'r' )
-        {
-            maskS = Scalar::all(0);
-            infocusS = originalS.clone();
-            imshow("image", infocusS);
-        }
-
-        if( c == 'i' || c == ' ' )
-        {
-
-          resize(maskS,mask,size,INTER_CUBIC);
-          notFilled = false;
-
-          depthMapF= fillDepthMapDirected(depthMap,mask);
-          GaussianBlur(depthMapF,depthMapFBlurred,Size(15,15),0);
-
-
-          inpaint(infocus, mask, inpainted, 3, INPAINT_TELEA);
-
-          out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,15,500);
-
-          resize(out,outS,smallSize);
-          //imshow("out",out);
-
-
-          //out = infocus;
-          cout<< "image completed - next to propagate through the focal stack" << endl;
-
-          vector<Mat> outImages;
-          outImages = propogateFocalStack(imgs, gauss, out, mask, depthMapF, depthMapBlurred);
-
-
-          for(int i = 0; i < outImages.size(); i++)
-          {
-            stringstream ss;
-            string outputName;
-            ss << filename << "_completed" << i << ".jpg";
-            outputName = ss.str();
-            cout << "writing " << outputName << endl;
-            //imshow(outputName, outImages.at(i));
-            imwrite(outputName, outImages.at(i));
-          }
-          notFilled = false;
-        }
-
-
+      return 0;
     }
 
+    notFilled = false;
+
+    depthMapF= fillDepthMapDirected(depthMap,mask);
+    GaussianBlur(depthMapF,depthMapFBlurred,Size(15,15),0);
+
+
+    inpaint(infocus, mask, inpainted, 3, INPAINT_TELEA);
+
+    out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,15,500);
+
+    resize(out,outS,smallSize);
+    //imshow("out",out);
+
+
+    //out = infocus;
+    cout<< "image completed - next to propagate through the focal stack" << endl;
+
+    vector<Mat> outImages;
+    outImages = propogateFocalStack(imgs, gauss, out, mask, depthMapF, depthMapBlurred);
+
+
+    for(int i = 0; i < outImages.size(); i++)
+    {
+      stringstream ss;
+      string outputName;
+      ss << filename << "_completed" << i << ".jpg";
+      outputName = ss.str();
+      cout << "writing " << outputName << endl;
+      //imshow(outputName, outImages.at(i));
+      imwrite(outputName, outImages.at(i));
+    }
+    notFilled = false;
 
     resize(depthMapF,depthMapFS, smallSize);
     string name = filename+"_filled.jpg";

@@ -3,9 +3,10 @@
 
 CMakeFiles/LFCompletion.dir/LFCompletion.cpp.o
  /Users/Terry/Desktop/OpenCVTests/LFCompletion/DepthMap.cpp
- /Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHole.cpp
+ /Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHoleDirected.cpp
  /Users/Terry/Desktop/OpenCVTests/LFCompletion/FocalStackPropagation.cpp
  /Users/Terry/Desktop/OpenCVTests/LFCompletion/LFCompletion.cpp
+ /Users/Terry/Desktop/OpenCVTests/LFCompletion/pixelStruct.h
  /usr/local/include/opencv2/core.hpp
  /usr/local/include/opencv2/core/base.hpp
  /usr/local/include/opencv2/core/bufferpool.hpp

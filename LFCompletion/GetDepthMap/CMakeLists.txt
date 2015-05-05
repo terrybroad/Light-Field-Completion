@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( GetDepthMap )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( GetDepthMap GetDepthMap.cpp )
+target_link_libraries( GetDepthMap ${OpenCV_LIBS} )

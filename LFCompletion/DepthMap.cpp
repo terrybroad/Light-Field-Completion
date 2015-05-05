@@ -10,16 +10,51 @@
 using namespace cv;
 using namespace std;
 
+//----------------------------------------------------------------------------------------------------------------------------------------
 uchar getDepthMapColour(int depthIndex,int imgNum)
 {
-  return (uchar) 255 - depthIndex*(255/imgNum);
+  return (uchar) (int)(255 - depthIndex*(255/imgNum));
 }
 
+//----------------------------------------------------------------------------------------------------------------------------------------
 int getIndexFromDepthMap(uchar depthMapCol,int imgNum)
 {
-  return (255-depthMapCol) / (255/imgNum);
+  double d = 1 - depthMapCol/255;
+
+  d *= imgNum;
+
+  if(d < 0){d = 0;}
+  if(d >= imgNum-1){d = imgNum-1;}
+
+  return (int) d;
 }
 
+//----------------------------------------------------------------------------------------------------------------------------------------
+double getIndexFromDepthMapFloat(uchar depthMapCol,int imgNum)
+{
+  double d = 1 - depthMapCol/255;
+
+  d *= imgNum;
+
+  if(d < 0){d = 0;}
+  if(d >= imgNum-1){d = imgNum-1;}
+
+  return d;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+double getDepthDistance(uchar val, uchar val2)
+{
+  return (double) 1 - abs((int)val - (int)val2)/255;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+uchar getDepthDistanceUchar(uchar val, uchar val2)
+{
+  return (uchar) abs((int)val - (int)val2);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 vector<Mat> laplacianFocalStack(vector<Mat> &imgs)
 {
   int imgNum = imgs.size();
@@ -44,7 +79,7 @@ vector<Mat> laplacianFocalStack(vector<Mat> &imgs)
   return boosted;
 }
 
-
+//----------------------------------------------------------------------------------------------------------------------------------------
 vector<Mat> differenceOfGaussianFocalStack(vector<Mat> &imgs)
 {
   int imgNum = imgs.size();
@@ -72,6 +107,7 @@ vector<Mat> differenceOfGaussianFocalStack(vector<Mat> &imgs)
   return boosted;
 }
 
+//----------------------------------------------------------------------------------------------------------------------------------------
 Mat averageImages(vector<Mat> &imgs)
 {
   Mat avIm = Mat::zeros(imgs.at(0).size(), CV_8U);
@@ -89,14 +125,10 @@ Mat averageImages(vector<Mat> &imgs)
       avIm.at<uchar>(y,x) = (uchar) val;
     }
   }
-
-  imshow("avIm", avIm);
-
-  //avIm.convertTo(avImBoosted,0,0);
-  //imshow("avImBoosted", avImBoosted);
   return avIm;
 }
 
+//----------------------------------------------------------------------------------------------------------------------------------------
 Mat createDepthMap(vector<Mat> &imgs)
 {
   Mat depthMap = Mat::zeros(imgs.at(0).size(), CV_8U);
@@ -134,13 +166,41 @@ Mat createDepthMap(vector<Mat> &imgs)
 
 
       depthMap.at<uchar>(y,x) = getDepthMapColour(depthIndex, imgNum); //(uchar) 255 - depthIndex*(255/imgNum);
-      //inFocus.at<Vec3b>(y,x) = imgs.at(depthIndex).at<Vec3b>(y,x);
-
     }
   }
   return depthMap;
 }
 
+//----------------------------------------------------------------------------------------------------------------------------------------
+Mat getRelativeDepthMap(const Mat &img, uchar depthValue,int imgNum)
+{
+  Mat imgOut = Mat::ones(img.size(), CV_8U);
+
+  for(int y = 0; y < imgOut.rows; y++)
+  {
+    for(int x = 0; x < imgOut.cols; x++)
+    {
+      imgOut.at<uchar>(y,x) = getDepthDistanceUchar(img.at<uchar>(y,x),depthValue);
+    }
+  }
+
+  return imgOut;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+vector<Mat> getRelativeDepthMapStack(const Mat &img, int imgNum)
+{
+  vector<Mat> imgsOut;
+  imgsOut.resize(imgNum);
+
+  for(int i = 0; i < imgNum; i++)
+  {
+    imgsOut.at(i) = getRelativeDepthMap(img, getDepthMapColour(i, imgNum),imgNum);
+  }
+  return imgsOut;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 Mat createInFocusImage(Mat &depthMap, vector<Mat> &imgs)
 {
   Mat inFocus = Mat::zeros(depthMap.size(), CV_8UC3);
@@ -156,6 +216,38 @@ Mat createInFocusImage(Mat &depthMap, vector<Mat> &imgs)
       depthIndex = getIndexFromDepthMap(depthMap.at<uchar>(y,x), imgNum); //(255-depthMap.at<uchar>(y,x)) / (255/imgNum);
       inFocus.at<Vec3b>(y,x) = imgs.at(depthIndex).at<Vec3b>(y,x);
 
+    }
+  }
+  return inFocus;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Vec3b getInterpolatedCol(const Vec3b col1, const Vec3b col2, float ratio)
+{
+  Vec3b colOut;
+
+  for(int i = 0; i < 3; i++)
+  {
+    colOut[i] = (uchar) (col1[i] * (ratio)) + (col2[i] * (1-ratio));
+  }
+  return colOut;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+Mat createInFocusImageInterpolate(Mat &depthMapBlurred, vector<Mat> &imgs)
+{
+  Mat inFocus = Mat::zeros(depthMapBlurred.size(), CV_8UC3);
+  int rows = inFocus.rows;
+  int cols = inFocus.cols;
+  int imgNum = imgs.size();
+  for(int y = 0; y < rows; y++)
+  {
+    for(int x = 0; x < cols; x++)
+    {
+      double depthIndex;
+      depthIndex = getIndexFromDepthMapFloat(depthMapBlurred.at<uchar>(y,x), imgNum); //(255-depthMap.at<uchar>(y,x)) / (255/imgNum);
+      
+      inFocus.at<Vec3b>(y,x) = getInterpolatedCol(imgs.at(floor(depthIndex)).at<Vec3b>(y,x),imgs.at(floor(depthIndex+1)).at<Vec3b>(y,x), floor(depthIndex+1) - depthIndex);
     }
   }
   return inFocus;

@@ -24,7 +24,7 @@ iostream
 algorithm
 -
 
-/Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHole.cpp
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHoleDirected.cpp
 opencv2/core/core.hpp
 -
 opencv2/highgui/highgui.hpp
@@ -37,6 +37,8 @@ opencv2/imgcodecs.hpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/opencv2/imgcodecs.hpp
 opencv2/photo/photo.hpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/opencv2/photo/photo.hpp
+pixelStruct.h
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/pixelStruct.h
 iostream
 -
 
@@ -75,10 +77,14 @@ iostream
 -
 DepthMap.cpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/DepthMap.cpp
-FillHole.cpp
-/Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHole.cpp
+FillHoleDirected.cpp
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/FillHoleDirected.cpp
 FocalStackPropagation.cpp
 /Users/Terry/Desktop/OpenCVTests/LFCompletion/FocalStackPropagation.cpp
+pixelStruct.h
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/pixelStruct.h
+
+/Users/Terry/Desktop/OpenCVTests/LFCompletion/pixelStruct.h
 
 /usr/local/include/opencv2/core.hpp
 opencv2/core/cvdef.h

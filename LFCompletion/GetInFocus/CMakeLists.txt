@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( GetInFocus )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( GetInFocus GetInFocus.cpp )
+target_link_libraries( GetInFocus ${OpenCV_LIBS} )
