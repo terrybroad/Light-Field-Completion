@@ -1,0 +1,1 @@
+/Users/Terry/Desktop/OpenCVTests/WeiSynth/CMakeFiles/WeiSynth.dir

@@ -322,7 +322,7 @@ vector<Mat> propagateSegment(vector<Mat> &imgs, const Mat &infilled, const Mat &
       dilate(segmentMask, segmentMaskDilated,strElement,Point(-1, -1), 1, 1, 1);
       GaussianBlur(segmentMaskDilated,blurredMask, Size(kSize,kSize), kSize);
 
-      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask - relativeDepth*5);
+      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask - relativeDepth*0.5);
     }
     else if(i == imgIndex)
     {

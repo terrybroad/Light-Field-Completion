@@ -178,6 +178,8 @@ int main(int argc, char** argv )
     imwrite(name,infocus);
     name = filename+"_maskArea.jpg";
     imwrite(name,infocusS);
+    name = filename+"_mask.jpg";
+    imwrite(name,mask);
     cout << "finished, all files are written" << endl;
     while(1)
     {

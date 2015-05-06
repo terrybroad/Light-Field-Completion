@@ -1,0 +1,1 @@
+/Users/Terry/Desktop/OpenCVTests/TexSynth1/CMakeFiles/TexSynth1.dir

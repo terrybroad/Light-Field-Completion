@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( RandomImage )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( RandomImage RandomImage.cpp )
+target_link_libraries( RandomImage ${OpenCV_LIBS} )

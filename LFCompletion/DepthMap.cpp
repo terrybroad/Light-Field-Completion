@@ -136,6 +136,8 @@ Mat createDepthMap(vector<Mat> &imgs)
   int cols = imgs.at(0).cols;
   int imgNum = imgs.size();
 
+  Mat av = averageImages(imgs);
+
   for(int y = 0; y < rows; y++)
   {
     for(int x = 0; x < cols; x++)
@@ -152,7 +154,7 @@ Mat createDepthMap(vector<Mat> &imgs)
           {
             if(y+j >= 0 && y+j < rows && x+k >= 0 && x+k < cols)
             {
-              value += (int) imgs.at(i).at<uchar>(y+j,x+k);
+              value += (int) imgs.at(i).at<uchar>(y+j,x+k) - av.at<uchar>(y+j,x+k);
             }
           }
         }
@@ -246,7 +248,7 @@ Mat createInFocusImageInterpolate(Mat &depthMapBlurred, vector<Mat> &imgs)
     {
       double depthIndex;
       depthIndex = getIndexFromDepthMapFloat(depthMapBlurred.at<uchar>(y,x), imgNum); //(255-depthMap.at<uchar>(y,x)) / (255/imgNum);
-      
+
       inFocus.at<Vec3b>(y,x) = getInterpolatedCol(imgs.at(floor(depthIndex)).at<Vec3b>(y,x),imgs.at(floor(depthIndex+1)).at<Vec3b>(y,x), floor(depthIndex+1) - depthIndex);
     }
   }

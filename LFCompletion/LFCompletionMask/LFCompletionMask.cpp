@@ -23,29 +23,6 @@ vector<Mat> segments;
 vector<Mat> gauss;
 vector<Mat> windows;
 
-Point prevPt(-1,-1);
-
-
-
-static void onMouse( int event, int x, int y, int flags, void* )
-{
-    if( event == EVENT_LBUTTONUP || !(flags & EVENT_FLAG_LBUTTON) )
-        prevPt = Point(-1,-1);
-    else if( event == EVENT_LBUTTONDOWN )
-        prevPt = Point(x,y);
-    else if( event == EVENT_MOUSEMOVE && (flags & EVENT_FLAG_LBUTTON) )
-    {
-        Point pt(x,y);
-        if( prevPt.x < 0 )
-            prevPt = pt;
-        line( maskS, prevPt, pt, Scalar::all(255), 5, 200, 0 );
-        line( infocusS, prevPt, pt, Scalar(0,255,0), 5, 200, 0 );
-        prevPt = pt;
-        imshow("image", infocusS);
-    }
-}
-
-
 //------------------------------------------------------------
 string retrieveString( char* buf, int max ) {
 
@@ -85,16 +62,17 @@ int main(int argc, char** argv )
         imNum++;
       }
     }
+    cout << "images loaded" << endl;
 
     laplacians = laplacianFocalStack(imgs);
     gauss = differenceOfGaussianFocalStack(imgs);
 
     depthMap = createDepthMap(gauss);
     GaussianBlur(depthMap,depthMapBlurred,Size(15,15),0);
-
+    cout << "depth map created" << endl;
     infocus = createInFocusImage(depthMap,imgs);
     //infocus = createInFocusImageInterpolate(depthMapBlurred,imgs);
-
+    cout << "infocus image created" << endl;
 
 
 
@@ -108,20 +86,20 @@ int main(int argc, char** argv )
     maskS = Mat::zeros(smallSize, CV_8U);
 
     imshow("image", infocusS);
-    setMouseCallback( "image", onMouse, 0 );
 
     bool notFilled = true;
 
     string name;
     name = filename+"_mask.jpg";
 
-    mask = imread(name,1);
+    mask = imread(name,0);
 
     if(mask.empty())
     {
       return 0;
     }
 
+    cout << "mask read" << endl;
     notFilled = false;
 
     depthMapF= fillDepthMapDirected(depthMap,mask);
@@ -130,10 +108,13 @@ int main(int argc, char** argv )
 
     inpaint(infocus, mask, inpainted, 3, INPAINT_TELEA);
 
-    out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,15,500);
+    cout<< "image preliminary inpainted" << endl;
+
+
+    out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,11,1500);
 
     resize(out,outS,smallSize);
-    //imshow("out",out);
+    imshow("in focus filled",outS);
 
 
     //out = infocus;
@@ -156,19 +137,15 @@ int main(int argc, char** argv )
     notFilled = false;
 
     resize(depthMapF,depthMapFS, smallSize);
-    string name = filename+"_filled.jpg";
+    name = filename+"_filled.jpg";
     imwrite(name,out);
     name = filename+"_depthMapFilled.jpg";
     imwrite(name,depthMapF);
     name = filename+"_infocus.jpg";
     imwrite(name,infocus);
-    name = filename+"_maskArea.jpg";
-    imwrite(name,infocusS);
+
     cout << "finished, all files are written" << endl;
-    while(1)
-    {
-    imshow("filled_completed",outS);
-    //imshow("depthMap",depthMapFS);
-    }
+
+    return 0;
 
 }
