@@ -12,6 +12,8 @@
 
 using namespace cv;
 using namespace std;
+
+//LOAD ALL MATRICES AND ARRAY
 Mat infocus, infocusS,inpainted;
 Mat out, outS;
 Mat mask, maskS;
@@ -23,6 +25,7 @@ vector<Mat> segments;
 vector<Mat> gauss;
 vector<Mat> windows;
 
+//PARSE STRING
 //------------------------------------------------------------
 string retrieveString( char* buf, int max ) {
 
@@ -43,7 +46,7 @@ int main(int argc, char** argv )
     bool imageLoad = true;
     int imNum = 0;
 
-
+    //LOAD FOCAL STACK IMAGES
     while(imageLoad)
     {
       stringstream ss;
@@ -64,14 +67,17 @@ int main(int argc, char** argv )
     }
     cout << "images loaded" << endl;
 
+    //CREATE LAPLACIAN ARRAY
     laplacians = laplacianFocalStack(imgs);
     gauss = differenceOfGaussianFocalStack(imgs);
 
-    depthMap = createDepthMap(gauss);
+    //CREATE DEPTH MAP
+    depthMap = createDepthMap(laplacians);
+
     GaussianBlur(depthMap,depthMapBlurred,Size(15,15),0);
     cout << "depth map created" << endl;
+
     infocus = createInFocusImage(depthMap,imgs);
-    //infocus = createInFocusImageInterpolate(depthMapBlurred,imgs);
     cout << "infocus image created" << endl;
 
 
@@ -105,13 +111,13 @@ int main(int argc, char** argv )
     depthMapF= fillDepthMapDirected(depthMap,mask);
     GaussianBlur(depthMapF,depthMapFBlurred,Size(15,15),0);
 
-
-    inpaint(infocus, mask, inpainted, 3, INPAINT_TELEA);
+    //INPAINT IMAGE
+    inpaint(infocus, mask, inpainted, 3, INPAINT_NS);
 
     cout<< "image preliminary inpainted" << endl;
 
-
-    out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,11,1500);
+    // PERFORM TEXTURE SYNTHSIS
+    out = fillImageDirected(inpainted,depthMapF,depthMapFBlurred,mask,3,500);
 
     resize(out,outS,smallSize);
     imshow("in focus filled",outS);
@@ -120,10 +126,12 @@ int main(int argc, char** argv )
     //out = infocus;
     cout<< "image completed - next to propagate through the focal stack" << endl;
 
+    // PROPAGATE THROUGH FOCAL STACK
     vector<Mat> outImages;
-    outImages = propogateFocalStack(imgs, gauss, out, mask, depthMapF, depthMapBlurred);
+    outImages = propogateFocalStack(imgs, laplacians, out, mask, depthMapF, depthMapFBlurred);
 
 
+    // WRITE IMAGES
     for(int i = 0; i < outImages.size(); i++)
     {
       stringstream ss;
@@ -131,7 +139,6 @@ int main(int argc, char** argv )
       ss << filename << "_completed" << i << ".jpg";
       outputName = ss.str();
       cout << "writing " << outputName << endl;
-      //imshow(outputName, outImages.at(i));
       imwrite(outputName, outImages.at(i));
     }
     notFilled = false;

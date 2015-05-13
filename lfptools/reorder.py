@@ -1,7 +1,7 @@
 import pygame, glob, json, commands
 from pprint import pprint
 
-whichFile = "tree"
+whichFile = "truck"
 jpegFilenames = glob.glob(whichFile + "*.jpg")
 shasumToJpeg = {}
 for filename in jpegFilenames:
@@ -39,7 +39,7 @@ for j, img in enumerate(imageArray):
 
   li.append(d)
   print li
-  string = 'reordered'
+  string = 'reorder/truck'
   string +=`j`
   string +='.jpg'
   jpegOut = pygame.Surface((1080, 1080))

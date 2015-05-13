@@ -201,6 +201,30 @@ bool isNeighbour(const Point2i pos, const Point2i ptemp, vector<Point2i> &linear
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+
+double IdenticalNeighbourWeight(const Point2i pos, const Point2i ptemp, vector<Point2i> &linearArray, int windowSize,int cols)
+{
+  int w = 1;
+  int c = 0;
+  for(int y = (-1*windowSize)+1; y < windowSize; y++)
+  {
+    for(int x = (-1*windowSize)+1; x < windowSize; x++)
+    {
+      if(!(y == 0 && x == 0))
+      {
+        if(linearArray.at((pos.y+ y)*cols + pos.x+x) == ptemp)
+        {
+          w++;
+        }
+        c++;
+      }
+    }
+  }
+
+  return (double) 1 + ((1.45/(c)) * w);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------
 double getDistDirected(const Mat &templ8, const Mat &templ9, const Mat &gaussian, int windowSize)
 {
   double dist = 0;
@@ -230,6 +254,7 @@ double getDistDirected(const Mat &templ8, const Mat &templ9, const Mat &gaussian
   return sqrt(dist)/count;
 }
 
+//ASHIKHMIN SEARCH SEE ALGORITHM 2
 //----------------------------------------------------------------------------------------------------------------------------------------
 pixelStruct findBestPixelAshikhmin(const Mat &templ8, const vector<Mat> &templates, const Mat &gaussian, const Mat &mask, const Mat &depthMap, int rows, int cols, const Point2i pos, vector<Point2i> &linearArray, int windowSize)
 {
@@ -259,12 +284,15 @@ pixelStruct findBestPixelAshikhmin(const Mat &templ8, const vector<Mat> &templat
           {
             double dist = getDistDirected(templ8, templates.at(ptemp.y*cols +ptemp.x),gaussian,windowSize);
             double depthDistance = getDepthDistance(depthMap.at<uchar>(pos), depthMap.at<uchar>(ptemp));
-            dist /= depthDistance;
+            dist *= depthDistance;
 
-            if(isNeighbour(pos,ptemp,linearArray,windowSize,cols))
-            {
-              dist *= 1.4;
-            }
+            // if(isNeighbour(pos,ptemp,linearArray,windowSize,cols))
+            // {
+            //   dist *= 1.4;
+            // }
+
+            dist *= IdenticalNeighbourWeight(pos,ptemp,linearArray,windowSize,cols);
+
             if(dist < bestValue)
             {
               bestValue = dist;
@@ -295,13 +323,15 @@ pixelStruct findBestPixelAshikhmin(const Mat &templ8, const vector<Mat> &templat
   return p;
 }
 
+//EXPANDING SEACH - SEE ALGORITHM 1 FOR EXPLANATION
 //----------------------------------------------------------------------------------------------------------------------------------------
-const Point2i findBestPixelExhaustive(int searchRange, const Mat &templ8, const vector<Mat> &templates, const Mat &gaussian, const Mat &mask, const Mat &depthMap, int rows, int cols,const Point2i pos, vector<Point2i> &linearArray, int windowSize)
+const Point2i findBestPixelExhaustive(int searchRange, const Mat &templ8, const vector<Mat> &templates, const Mat &gaussian, const Mat &mask, const Mat &depthMap, int rows, int cols,const Point2i pos, vector<Point2i> &linearArray, int windowSize, RNG &rng, double threshold)
 {
   Point2i bestPixel = pos;
   Point2i ptemp;
   double bestValue = 100;
-
+  vector<Point2i> points;
+  points.resize(1);
 
   int n = 1;
   int count = 0;
@@ -326,20 +356,29 @@ const Point2i findBestPixelExhaustive(int searchRange, const Mat &templ8, const 
               {
                 double dist = getDistDirected(templ8, templates.at(ptemp.y*cols + ptemp.x),gaussian,windowSize);
                 double depthDistance = getDepthDistance(depthMap.at<uchar>(pos), depthMap.at<uchar>(ptemp));
-                dist /= depthDistance;
 
-                if(isNeighbour(pos,ptemp,linearArray,windowSize,cols))
-                {
-                  dist *= 1.4;
-                }
+                dist *= depthDistance;
+
+// if(isNeighbour(pos,ptemp,linearArray,windowSize,cols))
+// {
+//   dist *= 1.4;
+// }
+
+                dist *= IdenticalNeighbourWeight(pos,ptemp,linearArray,windowSize,cols);
 
                 count++;
+                if(dist < threshold)
+                {
+                  points.at(points.size()-1) = ptemp;
+                  points.resize(points.size()+1);
+                }
                 if(dist < bestValue)
                 {
                   bestValue = dist;
                   bestPixel.x = ptemp.x;
                   bestPixel.y = ptemp.y;
                 }
+
               }
             }
           }
@@ -347,10 +386,18 @@ const Point2i findBestPixelExhaustive(int searchRange, const Mat &templ8, const 
       }
       n++;
     }
-    cout << "Exhaustive search" << endl; cout << bestValue << endl;
 
-  return bestPixel;
+
+   if(points.size() > 1)
+   {
+     bestPixel = points.at( floor(rng.uniform(0,points.size()-1) ) );
+     cout << "Random Markov Field search" << endl; cout << bestValue << endl;
+     cout << "Search num " << endl; cout << points.size() << endl;
+   }
+   else{cout << "Exhaustive search" << endl; cout << bestValue << endl;}
+   return bestPixel;
 }
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 vector<Point2i> getLinearArray(const Mat &maskBinary)
@@ -462,6 +509,7 @@ int countUnfilled(const Mat &maskBinary)
   return unfilledCount;
 }
 
+// FILL HOLE SEE ALGORITHM 3
 //----------------------------------------------------------------------------------------------------------------------------------------
 Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depthMapBlurred, const Mat &inpaintMask, int windowSize, int searchSize)
 {
@@ -500,7 +548,8 @@ Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depth
 
       noisy = addNoiseWithMask(inpainted,maskBinary, rng);
 
-      cout << "noise added" << endl;
+      // imwrite("impaintedNoise.jpg", noisy);
+      // cout << "noise added" << endl;
 
       cvtColor(inpainted, outLAB, CV_BGR2Lab);
 
@@ -513,6 +562,8 @@ Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depth
       gaussianMask = getGaussianMask(windowSize);
 
       originalMask = maskBinary.clone();
+      Mat maskExtended;
+      dilate(originalMask,maskExtended,strElement2,Point(-1, -1), 1, 1, 1);
 
       int unfilledCount = countUnfilled(maskBinary);
 
@@ -520,9 +571,13 @@ Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depth
 
       int epoch = 0;
 
-      double winSizeWeight = gaussianMaskWeight(gaussianMask);
+      double winSizeWeight = 0;
+      winSizeWeight = gaussianMaskWeight(gaussianMask);
 
-      winSizeWeight *= 1.75;
+      winSizeWeight *= 1.9;
+
+      winSizeWeight  = 0.2;
+
 
       while(unfilledCount > 0)
       {
@@ -546,7 +601,7 @@ Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depth
                 cout << "threshold" << endl; cout << winSizeWeight << endl;
                 if(epoch > 0)
                 {
-                  p = findBestPixelAshikhmin(templ8,templates,gaussianMask,originalMask,depthMapBlurred,rows,cols,Point2i(x,y),linearArray,windowSize);
+                  p = findBestPixelAshikhmin(templ8,templates,gaussianMask,maskExtended,depthMapBlurred,rows,cols,Point2i(x,y),linearArray,windowSize);
                 }
                 if(p.distance < winSizeWeight)
                 {
@@ -558,7 +613,7 @@ Mat fillImageDirected(const Mat &inpainted, const Mat &depthMap, const Mat&depth
                 }
                 else
                 {
-                  newPos = findBestPixelExhaustive(searchSize,templ8,templates,gaussianMask,originalMask,depthMapBlurred,rows,cols,Point2i(x,y),linearArray,windowSize);
+                  newPos = findBestPixelExhaustive(searchSize,templ8,templates,maskExtended,originalMask,depthMapBlurred,rows,cols,Point2i(x,y),linearArray,windowSize,rng,0.18);
                   outLAB.at<int>(y,x,0) = outLAB.at<int>(newPos.y,newPos.x,0);
 
                 }

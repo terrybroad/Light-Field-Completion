@@ -19,15 +19,9 @@ uchar getDepthMapColour(int depthIndex,int imgNum)
 //----------------------------------------------------------------------------------------------------------------------------------------
 int getIndexFromDepthMap(uchar depthMapCol,int imgNum)
 {
-  double d = 1 - depthMapCol/255;
-
-  d *= imgNum;
-
-  if(d < 0){d = 0;}
-  if(d >= imgNum-1){d = imgNum-1;}
-
-  return (int) d;
+  return (255-depthMapCol) / (255/imgNum);
 }
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 double getIndexFromDepthMapFloat(uchar depthMapCol,int imgNum)
@@ -45,7 +39,7 @@ double getIndexFromDepthMapFloat(uchar depthMapCol,int imgNum)
 //----------------------------------------------------------------------------------------------------------------------------------------
 double getDepthDistance(uchar val, uchar val2)
 {
-  return (double) 1 - abs((int)val - (int)val2)/255;
+  return (double) 1/ (1 - abs((int)val - (int)val2)/255);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -71,6 +65,7 @@ vector<Mat> laplacianFocalStack(vector<Mat> &imgs)
   for(int i = 0; i < imgNum; i++)
   {
         cvtColor(imgs.at(i),imgsG.at(i), CV_BGR2GRAY);
+
         Laplacian(imgsG.at(i),laps.at(i),0,5);
         GaussianBlur(laps.at(i),smoothed.at(i),Size(55,55),10);
         smoothed.at(i).convertTo(boosted.at(i),0,2);

@@ -33,7 +33,7 @@ vector<int> getDepthMapIndicies(const Mat &depthMap, const Mat &mask,int imgNum)
           bool entered = false;
           for(int i = 0; i < indexCount; i++)
           {
-            if((int) depthMap.at<uchar>(y,x) == indicies.at(i))
+            if(indicies.at(i) == (int) depthMap.at<uchar>(y,x))
             {
               entered = true;
             }
@@ -51,50 +51,52 @@ vector<int> getDepthMapIndicies(const Mat &depthMap, const Mat &mask,int imgNum)
 
   for(int i = 0; i < indexCount; i++)
   {
-    indicies.at(i) = getIndexFromDepthMap((uchar) indicies.at(i),imgNum);
+    indicies.at(i) = getIndexFromDepthMap((uchar)indicies.at(i),imgNum);
   }
+
   sort(indicies.begin(),indicies.end());
 
   return indicies;
 }
 
-//----------------------------------------------------------------------------------------------------------------------------------------
-vector<Mat> splitSegments(const Mat &depthMap, const Mat &img, const Mat &mask, vector<int> &indicies, int imgNum)
-{
-  int arrSize = indicies.size();
-  vector<Mat> segments;
-  segments.resize(arrSize);
-
-  for(int i = 0; i < arrSize; i++)
-  {
-    uchar depthMapCol = getDepthMapColour(indicies.at(i),imgNum);
-    segments.at(i) = Mat::zeros(depthMap.size(), CV_8UC4);
-
-    for(int y = 0; y < mask.rows; y++)
-    {
-      for(int x = 0; x < mask.cols; x++)
-      {
-        if((int) mask.at<uchar>(y,x) != 0 && (int)depthMap.at<uchar>(y,x) == (int)depthMapCol)
-        {
-          Vec4b s;
-          Vec3b im;
-          im = img.at<Vec3b>(y,x);
-          s.val[0] = im.val[0];
-          s.val[1] = im.val[1];
-          s.val[2] = im.val[2];
-          s.val[3] = (uchar) 255;
-
-          segments.at(i).at<Vec4b>(y,x) = s;
-        }
-        else
-        {
-          segments.at(i).at<Vec4b>(y,x) = Vec4b(0,0,0,0);
-        }
-      }
-    }
-  }
-  return segments;
-}
+// //----------------------------------------------------------------------------------------------------------------------------------------
+// vector<Mat> splitSegments(const Mat &depthMap, const Mat &img, const Mat &mask, vector<int> &indicies, int imgNum)
+// {
+//   int arrSize = indicies.size();
+//   vector<Mat> segments;
+//   segments.resize(arrSize);
+//
+//   for(int i = 0; i < arrSize; i++)
+//   {
+//     uchar depthMapCol = getDepthMapColour(indicies.at(i),imgNum);
+//     segments.at(i) = Mat::zeros(depthMap.size(), CV_8UC4);
+//
+//     for(int y = 0; y < mask.rows; y++)
+//     {
+//       for(int x = 0; x < mask.cols; x++)
+//       {
+//         if((int) mask.at<uchar>(y,x) != 0 && (int)depthMap.at<uchar>(y,x) == (int)depthMapCol)
+//         {
+//           Vec4b s;
+//           Vec3b im;
+//           im = img.at<Vec3b>(y,x);
+//           s.val[0] = im.val[0];
+//           s.val[1] = im.val[1];
+//           s.val[2] = im.val[2];
+//           s.val[3] = (uchar) 255;
+//
+//           segments.at(i).at<Vec4b>(y,x) = s;
+//         }
+//         else
+//         {
+//           segments.at(i).at<Vec4b>(y,x) = Vec4b(0,0,0,0);
+//         }
+//
+//       }
+//     }
+//   }
+//   return segments;
+// }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 vector<Mat> splitSegmentMasks(const Mat &depthMap, const Mat &mask, vector<int> &indicies, int imgNum)
@@ -125,6 +127,8 @@ vector<Mat> splitSegmentMasks(const Mat &depthMap, const Mat &mask, vector<int> 
         }
       }
     }
+    string name = "solo mask - " + to_string(i) + ".jpg";
+    imwrite(name, segments.at(i));
     //dilate(segments.at(i), segmentsDilated.at(i),strElement,Point(-1, -1), 1, 1, 1);
   }
 
@@ -165,14 +169,14 @@ vector<Rect> getInFocusWindows(vector<Mat> &laplacians,vector<Mat> &relativeDept
   Mat av = averageImages(laplacians);
   for(int i = 0; i < laplacians.size(); i++)
   {
-    windows.at(i) = getInFocusWindow(laplacians.at(i) - av);
+    windows.at(i) = getInFocusWindow(laplacians.at(i) - relativeDepths.at(i)*0.5);
   }
 
   return windows;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-vector<Mat> getCroppedImages(const Rect window, vector<Mat> &imgs, const Mat &distanceMap)
+vector<Mat> getCroppedImages(const Rect window, vector<Mat> &imgs, const Mat &distanceMap, int count)
 {
   vector<Mat> smallImgs;
   vector<Mat> smallImgsG;
@@ -204,41 +208,27 @@ int getCoeff(const Mat &focused, const Mat &notFocused)
   Mat blurred;
   int bestCoeff = 0;
   double lowestDistance = 500;
-  int stepSize = 3;
+  int stepSize = 1;
   int kSize = 0;
 
-  for(int i = 1; i < stepSize*2; i++)
+  for(int i = 1; i < 25; i++)
   {
     kSize = i*stepSize;
     kSize = (kSize*2)+1;
 
-    GaussianBlur(focused,blurred,Size(kSize,kSize),0);
+    GaussianBlur(focused,blurred,Size(kSize,kSize),kSize);
+
+    Mat diff;
+
+    absdiff(notFocused,blurred,diff);
     double dist = imDistance(blurred,notFocused);
+
     if(dist < lowestDistance)
     {
       bestCoeff = i*stepSize;
       lowestDistance = dist;
     }
   }
-
-  int ogCoeff = bestCoeff;
-
-    for(int i = -stepSize; i < stepSize; i++)
-    {
-      if(ogCoeff + i > 0)
-      {
-        kSize = ogCoeff+i;
-        kSize = (kSize*2)+1;
-
-        GaussianBlur(focused,blurred,Size(kSize,kSize),kSize);
-        double dist = imDistance(blurred,notFocused);
-        if(dist < lowestDistance)
-        {
-          bestCoeff = ogCoeff + i;
-          lowestDistance = dist;
-        }
-      }
-    }
 
   return (bestCoeff*2)+1;
 }
@@ -303,10 +293,12 @@ vector<Mat> propagateSegment(vector<Mat> &imgs, const Mat &infilled, const Mat &
   vector<Mat> imgsOut;
   vector<Mat> smallImgs;
   imgsOut.resize(imgs.size());
-  smallImgs = getCroppedImages(window,imgs,relativeDepth);
+  smallImgs = getCroppedImages(window,imgs,relativeDepth,imgIndex);
   vector<int> coefficients = getCoefficients(smallImgs, imgIndex);
 
   Mat segmentMaskDilated,blurredMask, blurredMask2, blurredInfilled;
+
+
 
   GaussianBlur(segmentMask,blurredMask, Size(5,5), 5);
   for(int i = 0; i < imgs.size(); i++)
@@ -317,16 +309,16 @@ vector<Mat> propagateSegment(vector<Mat> &imgs, const Mat &infilled, const Mat &
     {
       GaussianBlur(infilled, blurredInfilled, Size(kSize,kSize), kSize);
       imgsOut.at(i) = superImpose(imgs.at(i),blurredInfilled, blurredMask);
-
       Mat strElement = getStructuringElement( MORPH_RECT,Size( kSize, kSize),Point(1,1));
       dilate(segmentMask, segmentMaskDilated,strElement,Point(-1, -1), 1, 1, 1);
       GaussianBlur(segmentMaskDilated,blurredMask, Size(kSize,kSize), kSize);
 
-      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask - relativeDepth*0.5);
+      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask - relativeDepth*0.25);
+      imgsOut.at(i) = superImpose(imgsOut.at(i),blurredInfilled, blurredMask);
     }
-    else if(i == imgIndex)
+    else
     {
-      imgsOut.at(i) = superImpose(imgs.at(i),infilled, blurredMask - relativeDepth);
+      imgsOut.at(i) = superImpose(imgs.at(i),infilled, blurredMask);
     }
   }
 
@@ -339,9 +331,9 @@ vector<Mat> propogateFocalStack(vector<Mat> &imgs, vector<Mat> &laplacians, cons
   vector<Mat> imgsOut = imgs;
   vector<Mat> relativeDepths = getRelativeDepthMapStack(depthMapBlurred,imgs.size());
   vector<Rect> inFocusWindows = getInFocusWindows(laplacians,relativeDepths);
+
   vector<int> segmentIndicies = getDepthMapIndicies(depthMap,mask,imgs.size());
   vector<Mat> segments = splitSegmentMasks(depthMap,mask,segmentIndicies,imgs.size());
-
 
   for(int i = segments.size()-1; i > -1; i--)
   {

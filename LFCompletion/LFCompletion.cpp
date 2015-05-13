@@ -139,7 +139,7 @@ int main(int argc, char** argv )
 
           inpaint(infocus, mask, inpainted, 3, INPAINT_TELEA);
 
-          out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,15,500);
+          out = fillImageDirected(inpainted,depthMapF,depthMapBlurred,mask,11,2000);
 
           resize(out,outS,smallSize);
           //imshow("out",out);
@@ -149,7 +149,7 @@ int main(int argc, char** argv )
           cout<< "image completed - next to propagate through the focal stack" << endl;
 
           vector<Mat> outImages;
-          outImages = propogateFocalStack(imgs, gauss, out, mask, depthMapF, depthMapBlurred);
+          outImages = propogateFocalStack(imgs, laplacians, out, mask, depthMapF, depthMapBlurred);
 
 
           for(int i = 0; i < outImages.size(); i++)
